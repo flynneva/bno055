@@ -2,6 +2,8 @@
 A ROS2 driver for the sensor IMU Bosch BNO055. It was implemented only the UART communication interface
 (correct sensor mode should be selected...see diagram below).
 
+This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for ROS 1](https://github.com/mdrwiega/bosch_imu_driver)
+
 **Wiring Guide:**
 - Within BNO055: 3vo=PS1 to select UART.
 
