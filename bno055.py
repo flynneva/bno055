@@ -34,7 +34,7 @@
 #####################################################################
 
 import rclpy
-from sensor_msgs.msg import Imu
+from sensor_msgs.msg import Imu, Temperature, MagneticField
 from rclpy.qos import qos_profile_default
 
 import sys
@@ -109,16 +109,24 @@ WRITE = 0x00
 def main(args=None):
     rclpy.init(args=args)
     node = rclpy.create_node('bno055')
+    pub_imu_raw = node.create_publisher(Imu, 'imu_raw', qos_profile_default)
     pub_imu = node.create_publisher(Imu, 'imu', qos_profile_default)
+    pub_mag = node.create_publisher(MagneticField, 'mag', qos_profile_default)
+    pub_temp = node.create_publisher(Temperature, 'temp', qos_profile_default)
 
     # Initialize ROS msgs
+    imu_raw_msg = Imu()
     imu_msg = Imu()
+    mag_msg = MagneticField()
+    temp_msg = Temperature()
 
     # Initialize counters and constants
     seq = 0
     acc_fact = 1000.0
     mag_fact = 16.0
     gyr_fact = 900.0
+    
+    frame_id = 'bno055'
 
 #-----------------
     def open_serial(port, baudrate, timeout_):
@@ -168,7 +176,8 @@ def main(args=None):
         node.get_logger().info("Bosch BNO055 IMU configuration complete.")
         return 1 
 #-----------------------
-    # Read data from IMU
+#TODO: might want to seperate this into its own seperate class for ROS2?
+    # Read data from serial connection
     def receive(usb_con, reg_addr, length):
         buf_out = bytearray()
         buf_out.append(START_BYTE_WR)
@@ -185,7 +194,7 @@ def main(args=None):
 
         # Check if response is correct
         if (buf_in.__len__() != (2 + length)) or (buf_in[0] != START_BYTE_RESP):
-            #node.get_logger().warn("Incorrect Bosh IMU device response.")
+            #node.get_logger().warn("Incorrect device response.")
             return 0
         buf_in.pop(0)
         buf_in.pop(0)
@@ -211,39 +220,77 @@ def main(args=None):
             return False
         return True
 #--------------------------------------------
-
     # callback to read data from sensor
     def read_data():
         # read from sensor
         buf = receive(usb_con, ACCEL_DATA, 45)
         # Publish raw data
         # TODO: convert rcl Clock time to ros time?
-        #imu_msg.header.stamp = node.get_clock().now()
-        imu_msg.header.frame_id = 'bno055'
+        #imu_raw_msg.header.stamp = node.get_clock().now()
+        imu_raw_msg.header.frame_id = frame_id
         # TODO: do headers need sequence counters now?
-        #imu_msg.header.seq = seq
+        #imu_raw_msg.header.seq = seq
         if buf != 0:
             try:
-                imu_msg.orientation_covariance[0] = -1
-                imu_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / acc_fact
-                imu_msg.linear_acceleration.y = float(struct.unpack('h', struct.pack('BB', buf[2], buf[3]))[0]) / acc_fact
-                imu_msg.linear_acceleration.z = float(struct.unpack('h', struct.pack('BB', buf[4], buf[5]))[0]) / acc_fact
+                # TODO: make this an option to publish?
+                imu_raw_msg.orientation_covariance[0] = -1
+                imu_raw_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / acc_fact
+                imu_raw_msg.linear_acceleration.y = float(struct.unpack('h', struct.pack('BB', buf[2], buf[3]))[0]) / acc_fact
+                imu_raw_msg.linear_acceleration.z = float(struct.unpack('h', struct.pack('BB', buf[4], buf[5]))[0]) / acc_fact
+                imu_raw_msg.linear_acceleration_covariance[0] = -1
+                imu_raw_msg.angular_velocity.x = float(struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / gyr_fact
+                imu_raw_msg.angular_velocity.y = float(struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / gyr_fact
+                imu_raw_msg.angular_velocity.z = float(struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / gyr_fact
+                imu_raw_msg.angular_velocity_covariance[0] = -1
+                #node.get_logger().info('Publishing imu message')
+                pub_imu_raw.publish(imu_raw_msg)
+
+                # TODO: make this an option to publish?
+                # Publish filtered data
+                #imu_msg.header.stamp = node.get_clock().now()
+                imu_msg.header.frame_id = frame_id
+                #imu_msg.header.seq = seq
+                imu_msg.orientation.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
+                imu_msg.orientation.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
+                imu_msg.orientation.y = float(struct.unpack('h', struct.pack('BB', buf[28], buf[29]))[0])
+                imu_msg.orientation.z = float(struct.unpack('h', struct.pack('BB', buf[30], buf[31]))[0])
+                imu_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[32], buf[33]))[0]) / acc_fact
+                imu_msg.linear_acceleration.y = float(struct.unpack('h', struct.pack('BB', buf[34], buf[35]))[0]) / acc_fact
+                imu_msg.linear_acceleration.z = float(struct.unpack('h', struct.pack('BB', buf[36], buf[37]))[0]) / acc_fact
                 imu_msg.linear_acceleration_covariance[0] = -1
                 imu_msg.angular_velocity.x = float(struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / gyr_fact
                 imu_msg.angular_velocity.y = float(struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / gyr_fact
                 imu_msg.angular_velocity.z = float(struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / gyr_fact
                 imu_msg.angular_velocity_covariance[0] = -1
-                #node.get_logger().info('Publishing imu message')
                 pub_imu.publish(imu_msg)
-            except:
+
+                # Publish magnetometer data
+                #mag_msg.header.stamp = node.get_clock().now()
+                mag_msg.header.frame_id = frame_id
+                #mag_msg.header.seq = seq
+                mag_msg.magnetic_field.x = float(struct.unpack('h', struct.pack('BB', buf[6], buf[7]))[0]) / mag_fact
+                mag_msg.magnetic_field.y = float(struct.unpack('h', struct.pack('BB', buf[8], buf[9]))[0]) / mag_fact
+                mag_msg.magnetic_field.z = float(struct.unpack('h', struct.pack('BB', buf[10], buf[11]))[0]) / mag_fact
+                pub_mag.publish(mag_msg)
+
+                # Publish temperature
+                #temp_msg.header.stamp = node.get_clock().now()
+                temp_msg.header.frame_id = frame_id
+                #temp_msg.header.seq = seq
+                temp_msg.temperature = float(buf[44])
+                pub_temp.publish(temp_msg)
+            except Exception as e:
                 # something went wrong...keep going to the next message
-                node.get_logger().warn('oops')
+                node.get_logger().warn('oops..something went wrong')
+                node.get_logger().warn('Error: "%s"' % e)
+   
     
     # try to connect
     usb_con = open_serial('/dev/ttyUSB0', 115200, 0.02)
     # configure imu
     if (configure(usb_con)):
         # successfully configured
+        # TODO: this should be a parameter, given in Hz
         frequency = float(1 / 100)
         timer = node.create_timer(frequency, read_data)
 
