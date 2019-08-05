@@ -21,5 +21,5 @@ This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for R
   - These will be implemented in the near future. 
   - Check back for updates soon!
 
-Publishes:
+**Publishes:**
 - **bno055/imu** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html
