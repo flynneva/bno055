@@ -1,4 +1,4 @@
-## bno055
+## The bno055 ROS2 package
 A ROS2 driver for the sensor IMU Bosch BNO055. It was implemented only the UART communication interface
 (correct sensor mode should be selected...see diagram below).
 
