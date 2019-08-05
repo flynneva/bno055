@@ -1,4 +1,38 @@
 #!/usr/bin/env python3
+#####################################################################
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2016, Michal Drwiega
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#####################################################################
+
 import rclpy
 from sensor_msgs.msg import Imu
 from rclpy.qos import qos_profile_default
@@ -100,7 +134,7 @@ def main(args=None):
     def configure(usb_con):
         node.get_logger().info("Configuring device...")
         data = receive(usb_con, CHIP_ID, 1)
-        node.get_logger().info('device sent: "%s"' % data)
+        #node.get_logger().info('device sent: "%s"' % data)
         if data == 0 or data[0] != BNO055_ID:
             node.get_logger().warn("Device ID is incorrect...shutting down.")
             sys.exit(0)
@@ -186,6 +220,7 @@ def main(args=None):
         #imu_msg.header.stamp = node.get_clock().now()
         imu_msg.header.frame_id = 'bno055'
         #imu_msg.header.seq = seq
+        if (buf
         try:
             imu_msg.orientation_covariance[0] = -1
             imu_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / acc_fact
