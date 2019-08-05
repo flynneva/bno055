@@ -217,25 +217,27 @@ def main(args=None):
         # read from sensor
         buf = receive(usb_con, ACCEL_DATA, 45)
         # Publish raw data
+        # TODO: convert rcl Clock time to ros time?
         #imu_msg.header.stamp = node.get_clock().now()
         imu_msg.header.frame_id = 'bno055'
+        # TODO: do headers need sequence counters now?
         #imu_msg.header.seq = seq
-        if (buf
-        try:
-            imu_msg.orientation_covariance[0] = -1
-            imu_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / acc_fact
-            imu_msg.linear_acceleration.y = float(struct.unpack('h', struct.pack('BB', buf[2], buf[3]))[0]) / acc_fact
-            imu_msg.linear_acceleration.z = float(struct.unpack('h', struct.pack('BB', buf[4], buf[5]))[0]) / acc_fact
-            imu_msg.linear_acceleration_covariance[0] = -1
-            imu_msg.angular_velocity.x = float(struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / gyr_fact
-            imu_msg.angular_velocity.y = float(struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / gyr_fact
-            imu_msg.angular_velocity.z = float(struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / gyr_fact
-            imu_msg.angular_velocity_covariance[0] = -1
-            #node.get_logger().info('Publishing imu message')
-            pub_imu.publish(imu_msg)
-        except:
-            # something went wrong...keep going to the next message
-            node.get_logger().warn('oops')
+        if buf != 0:
+            try:
+                imu_msg.orientation_covariance[0] = -1
+                imu_msg.linear_acceleration.x = float(struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / acc_fact
+                imu_msg.linear_acceleration.y = float(struct.unpack('h', struct.pack('BB', buf[2], buf[3]))[0]) / acc_fact
+                imu_msg.linear_acceleration.z = float(struct.unpack('h', struct.pack('BB', buf[4], buf[5]))[0]) / acc_fact
+                imu_msg.linear_acceleration_covariance[0] = -1
+                imu_msg.angular_velocity.x = float(struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / gyr_fact
+                imu_msg.angular_velocity.y = float(struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / gyr_fact
+                imu_msg.angular_velocity.z = float(struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / gyr_fact
+                imu_msg.angular_velocity_covariance[0] = -1
+                #node.get_logger().info('Publishing imu message')
+                pub_imu.publish(imu_msg)
+            except:
+                # something went wrong...keep going to the next message
+                node.get_logger().warn('oops')
     
     # try to connect
     usb_con = open_serial('/dev/ttyUSB0', 115200, 0.02)
