@@ -125,8 +125,13 @@ def main(args=None):
     acc_fact = 1000.0
     mag_fact = 16.0
     gyr_fact = 900.0
-    
-    frame_id = 'bno055'
+ 
+    try:
+        frame_id = node.get_parameter('frame_id')
+        node.get_logger().info('bno055/frame_id: "%s"' % frame_id)
+    except:
+        frame_id = 'bno055'
+        node.get_logger().warn('Could not get parameters...')
 
 #-----------------
     def open_serial(port, baudrate, timeout_):

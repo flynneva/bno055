@@ -1,0 +1,5 @@
+bno055:
+  ros__parameters:
+    frame_id: "bno055"
+    port: "/dev/ttyUSB0" # path to device
+    frequency: 100 # Hz
