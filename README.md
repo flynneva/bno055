@@ -17,9 +17,13 @@ This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for R
 **NOTE: on the CP2104 the pins above refer to the FTDI pins at the opposite end from the USB connector
 
 **Parameters:**
-  - No parameters are supported as of yet. 
-  - These will be implemented in the near future. 
-  - Check back for updates soon!
+  - **port**: /path/to/device/port default='/dev/ttyUSB0'
+  - **frame_id**: coordinate frame id of sensor default='bno055'
+  - **baudrate**: baudrate of sensor default=115200
+  - **frequency**: frequency to read data from sensor default=100 Hz
 
 **Publishes:**
-- **bno055/imu** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html
+  - **bno055/imu** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
+  - **bno055/imu_raw** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
+  - **bno055/temp** [(sensor_msgs/Temperature)](http://docs.ros.org/api/sensor_msgs/html/msg/Temperature.html)
+  - **bno055/mag** [(sensor_msgs/MagneticField)](http://docs.ros.org/api/sensor_msgs/html/msg/MagneticField.html)
