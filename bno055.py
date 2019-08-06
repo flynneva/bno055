@@ -35,7 +35,8 @@
 
 import rclpy
 from sensor_msgs.msg import Imu, Temperature, MagneticField
-from rclpy.qos import qos_profile_default
+from rclpy.qos import QoSProfile
+#from rclpy.parameter import Parameter
 
 import sys
 import serial
@@ -107,12 +108,12 @@ READ = 0x01
 WRITE = 0x00
 
 def main(args=None):
-    rclpy.init(args=args)
+    rclpy.init()
     node = rclpy.create_node('bno055')
-    pub_imu_raw = node.create_publisher(Imu, 'imu_raw', qos_profile_default)
-    pub_imu = node.create_publisher(Imu, 'imu', qos_profile_default)
-    pub_mag = node.create_publisher(MagneticField, 'mag', qos_profile_default)
-    pub_temp = node.create_publisher(Temperature, 'temp', qos_profile_default)
+    pub_imu_raw = node.create_publisher(Imu, 'imu_raw', QoSProfile(depth=10))
+    pub_imu = node.create_publisher(Imu, 'imu', QoSProfile(depth=10))
+    pub_mag = node.create_publisher(MagneticField, 'mag', QoSProfile(depth=10))
+    pub_temp = node.create_publisher(Temperature, 'temp', QoSProfile(depth=10))
 
     # Initialize ROS msgs
     imu_raw_msg = Imu()
@@ -127,12 +128,41 @@ def main(args=None):
     gyr_fact = 900.0
  
     try:
+        # first, declare parameters that will be set
+        node.declare_parameter('frame_id')
+        node.declare_parameter('frequency')
+        node.declare_parameter('port')
+        node.declare_parameter('baudrate')
+        # then get the parameters
+        node.get_logger().info('Parameters set to:')
         frame_id = node.get_parameter('frame_id')
-        node.get_logger().info('bno055/frame_id: "%s"' % frame_id)
-    except:
-        frame_id = 'bno055'
-        node.get_logger().warn('Could not get parameters...')
-
+        node.get_logger().info('    bno055/frame_id:    "%s"' % frame_id.value)
+        port = node.get_parameter('port')
+        node.get_logger().info('    bno055/port:        "%s"' % port.value)
+        frequency = node.get_parameter('frequency')
+        node.get_logger().info('    bno055/frequency:   "%s"' % frequency.value)
+        baudrate = node.get_parameter('baudrate')
+        node.get_logger().info('    bno055/baudrate:    "%s"' % baudrate.value)
+    except Exception as e:
+         node.get_logger().warn('Could not get parameters...setting variables to default')
+         node.get_logger().warn('Error: "%s"' % e)       
+#        node.set_parameters( [
+#            Parameter('frame_id', Parameter.Type.STRING, 'bno055'),
+#            Parameter('port', Parameter.Type.STRING, '/dev/ttyUSB0'),
+#            Parameter('frequency', Parameter.Type.DOUBLE, 100.0),
+#            Parameter('baudrate', Parameter.Type.INTEGER, 115200) ])
+#
+#        node.get_logger().warn('Could not get parameters...setting variables to default')
+#        node.get_logger().warn('Error: "%s"' % e)       
+#        node.get_logger().info('Parameters set to:')
+#        frame_id = node.get_parameter('frame_id')
+#        node.get_logger().info('    bno055/frame_id:    "%s"' % frame_id.value)
+#        port = node.get_parameter('port')
+#        node.get_logger().info('    bno055/port:        "%s"' % port.value)
+#        frequency = node.get_parameter('frequency')
+#        node.get_logger().info('    bno055/frequency:   "%s"' % frequency.value)
+#        baudrate = node.get_parameter('baudrate')
+#        node.get_logger().info('    bno055/baudrate:    "%s"' % baudrate.value)
 #-----------------
     def open_serial(port, baudrate, timeout_):
         node.get_logger().info('Opening serial port: "%s"...' % port)
@@ -232,7 +262,7 @@ def main(args=None):
         # Publish raw data
         # TODO: convert rcl Clock time to ros time?
         #imu_raw_msg.header.stamp = node.get_clock().now()
-        imu_raw_msg.header.frame_id = frame_id
+        imu_raw_msg.header.frame_id = frame_id.value
         # TODO: do headers need sequence counters now?
         #imu_raw_msg.header.seq = seq
         if buf != 0:
@@ -253,7 +283,7 @@ def main(args=None):
                 # TODO: make this an option to publish?
                 # Publish filtered data
                 #imu_msg.header.stamp = node.get_clock().now()
-                imu_msg.header.frame_id = frame_id
+                imu_msg.header.frame_id = frame_id.value
                 #imu_msg.header.seq = seq
                 imu_msg.orientation.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
                 imu_msg.orientation.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
@@ -271,7 +301,7 @@ def main(args=None):
 
                 # Publish magnetometer data
                 #mag_msg.header.stamp = node.get_clock().now()
-                mag_msg.header.frame_id = frame_id
+                mag_msg.header.frame_id = frame_id.value
                 #mag_msg.header.seq = seq
                 mag_msg.magnetic_field.x = float(struct.unpack('h', struct.pack('BB', buf[6], buf[7]))[0]) / mag_fact
                 mag_msg.magnetic_field.y = float(struct.unpack('h', struct.pack('BB', buf[8], buf[9]))[0]) / mag_fact
@@ -280,7 +310,7 @@ def main(args=None):
 
                 # Publish temperature
                 #temp_msg.header.stamp = node.get_clock().now()
-                temp_msg.header.frame_id = frame_id
+                temp_msg.header.frame_id = frame_id.value
                 #temp_msg.header.seq = seq
                 temp_msg.temperature = float(buf[44])
                 pub_temp.publish(temp_msg)
@@ -291,13 +321,13 @@ def main(args=None):
    
     
     # try to connect
-    usb_con = open_serial('/dev/ttyUSB0', 115200, 0.02)
+    usb_con = open_serial(port.value, int(baudrate.value), 0.02)
     # configure imu
     if (configure(usb_con)):
         # successfully configured
         # TODO: this should be a parameter, given in Hz
-        frequency = float(1 / 100)
-        timer = node.create_timer(frequency, read_data)
+        f = 1.0 / float(frequency.value)
+        timer = node.create_timer(f, read_data)
 
     rclpy.spin(node)
     # clean shutdown
