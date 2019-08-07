@@ -107,6 +107,16 @@ START_BYTE_RESP = 0xbb
 READ = 0x01
 WRITE = 0x00
 
+# Default calibration values (taken from desk test approximation.) [x y z]
+# Signed hex 16 bit representation
+
+# +/- 2000 units (at max 2G)    (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
+ACC_OFFSET_DEFAULT = [0xFFEC, 0x00A5, 0xFFE8]
+# +/- 6400 units                (1 unit = 1/16 uT)
+MAG_OFFSET_DEFAULT = [0xFFB4, 0xFE9E, 0x027D]
+# +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
+GYR_OFFSET_DEFAULT = [0x0002, 0xFFFF, 0xFFFF]
+
 def main(args=None):
     rclpy.init()
     node = rclpy.create_node('bno055')
@@ -126,13 +136,18 @@ def main(args=None):
     acc_fact = 1000.0
     mag_fact = 16.0
     gyr_fact = 900.0
- 
+
+    baudrate = 115200
+
     try:
         # first, declare parameters that will be set
         node.declare_parameter('frame_id')
         node.declare_parameter('frequency')
         node.declare_parameter('port')
-        node.declare_parameter('baudrate')
+        node.declare_parameter('operation_mode')
+        node.declare_parameter('acc_offset')
+        node.declare_parameter('mag_offset')
+        node.declare_parameter('gyr_offset')
         # then get the parameters
         node.get_logger().info('Parameters set to:')
         frame_id = node.get_parameter('frame_id')
@@ -141,8 +156,14 @@ def main(args=None):
         node.get_logger().info('    bno055/port:        "%s"' % port.value)
         frequency = node.get_parameter('frequency')
         node.get_logger().info('    bno055/frequency:   "%s"' % frequency.value)
-        baudrate = node.get_parameter('baudrate')
-        node.get_logger().info('    bno055/baudrate:    "%s"' % baudrate.value)
+        operation_mode = node.get_parameter('operation_mode')
+        node.get_logger().info('    bno055/operation_mode:    "%s"' % operation_mode.value)
+        acc_offset = node.get_parameter('acc_offset')
+        node.get_logger().info('    bno055/acc_offset:    "%s"' % acc_offset.value)
+        mag_offset = node.get_parameter('mag_offset')
+        node.get_logger().info('    bno055/mag_offset:    "%s"' % mag_offset.value)
+        gyr_offset = node.get_parameter('gyr_offset')
+        node.get_logger().info('    bno055/gyr_offset:    "%s"' % gyr_offset.value)
     except Exception as e:
          node.get_logger().warn('Could not get parameters...setting variables to default')
          node.get_logger().warn('Error: "%s"' % e)       
@@ -183,7 +204,7 @@ def main(args=None):
             sys.exit(0)
 
         # IMU connected, configure it
-         # IMU Configuration
+        # IMU Configuration
         if not(write(usb_con, OPER_MODE, 1, OPER_MODE_CONFIG)):
             node.get_logger().warn("Unable to set IMU into config mode.")
 
@@ -255,6 +276,75 @@ def main(args=None):
             return False
         return True
 #--------------------------------------------
+    # Read calibration status for sys/gyro/acc/mag and display to screen (JK) (0 = bad, 3 = best)
+    def get_calib_status (ser):
+        calib_status = receive(ser, CALIB_STAT, 1)
+        try:
+            sys = (calib_status[0] >> 6) & 0x03
+            gyro = (calib_status[0] >> 4) & 0x03;
+            accel = (calib_status[0] >> 2) & 0x03;
+            mag = calib_status[0] & 0x03; 
+            rospy.loginfo('Sys: %d, Gyro: %d, Accel: %d, Mag: %d', sys, gyro, accel, mag)
+        except:
+            rospy.loginfo('No calibration data received')
+#--------------------------------------------
+# Read all calibration offsets and print to screen (JK)
+    def get_calib_offsets (ser):
+        try:
+            accel_offset_read = receive(ser, ACC_OFFSET, 6)
+            accel_offset_read_x = (accel_offset_read[1] << 8) | accel_offset_read[0]   # Combine MSB and LSB registers into one decimal
+            accel_offset_read_y = (accel_offset_read[3] << 8) | accel_offset_read[2]   # Combine MSB and LSB registers into one decimal
+            accel_offset_read_z = (accel_offset_read[5] << 8) | accel_offset_read[4]   # Combine MSB and LSB registers into one decimal
+
+            mag_offset_read = receive(ser, MAG_OFFSET, 6)
+            mag_offset_read_x = (mag_offset_read[1] << 8) | mag_offset_read[0]   # Combine MSB and LSB registers into one decimal
+            mag_offset_read_y = (mag_offset_read[3] << 8) | mag_offset_read[2]   # Combine MSB and LSB registers into one decimal
+            mag_offset_read_z = (mag_offset_read[5] << 8) | mag_offset_read[4]   # Combine MSB and LSB registers into one decimal
+
+            gyro_offset_read = receive(ser, GYR_OFFSET, 6)
+            gyro_offset_read_x = (gyro_offset_read[1] << 8) | gyro_offset_read[0]   # Combine MSB and LSB registers into one decimal
+            gyro_offset_read_y = (gyro_offset_read[3] << 8) | gyro_offset_read[2]   # Combine MSB and LSB registers into one decimal
+            gyro_offset_read_z = (gyro_offset_read[5] << 8) | gyro_offset_read[4]   # Combine MSB and LSB registers into one decimal
+
+            rospy.loginfo('Accel offsets (x y z): %d %d %d, Mag offsets (x y z): %d %d %d, Gyro offsets (x y z): %d %d %d', accel_offset_read_x, accel_offset_read_y, accel_offset_read_z, mag_offset_read_x, mag_offset_read_y, mag_offset_read_z, gyro_offset_read_x, gyro_offset_read_y, gyro_offset_read_z)
+        except:
+            rospy.loginfo('Calibration data cant be read')
+#--------------------------------------------
+    # Write out calibration values (define as 16 bit signed hex)
+    def set_calib_offsets (ser, acc_offset, mag_offset, gyr_offset):
+        # Must switch to config mode to write out
+        if not(write(ser, OPER_MODE, 1, OPER_MODE_CONFIG)):
+           rospy.logerr("Unable to set IMU into config mode.")
+        time.sleep(0.025)
+
+        # Seems to only work when writing 1 register at a time
+        try:
+            write(ser, ACC_OFFSET, 1, acc_offset[0] & 0xFF)                # ACC X LSB
+            write(ser, ACC_OFFSET+1, 1, (acc_offset[0] >> 8) & 0xFF)       # ACC X MSB
+            write(ser, ACC_OFFSET+2, 1, acc_offset[1] & 0xFF)               
+            write(ser, ACC_OFFSET+3, 1, (acc_offset[1] >> 8) & 0xFF)       
+            write(ser, ACC_OFFSET+4, 1, acc_offset[2] & 0xFF)               
+            write(ser, ACC_OFFSET+5, 1, (acc_offset[2] >> 8) & 0xFF)     
+
+            write(ser, MAG_OFFSET, 1, mag_offset[0] & 0xFF)               
+            write(ser, MAG_OFFSET+1, 1, (mag_offset[0] >> 8) & 0xFF)     
+            write(ser, MAG_OFFSET+2, 1, mag_offset[1] & 0xFF)               
+            write(ser, MAG_OFFSET+3, 1, (mag_offset[1] >> 8) & 0xFF)       
+            write(ser, MAG_OFFSET+4, 1, mag_offset[2] & 0xFF)               
+            write(ser, MAG_OFFSET+5, 1, (mag_offset[2] >> 8) & 0xFF)       
+
+            write(ser, GYR_OFFSET, 1, gyr_offset[0] & 0xFF)                
+            write(ser, GYR_OFFSET+1, 1, (gyr_offset[0] >> 8) & 0xFF)       
+            write(ser, GYR_OFFSET+2, 1, gyr_offset[1] & 0xFF)               
+            write(ser, GYR_OFFSET+3, 1, (gyr_offset[1] >> 8) & 0xFF)       
+            write(ser, GYR_OFFSET+4, 1, gyr_offset[2] & 0xFF)               
+            write(ser, GYR_OFFSET+5, 1, (gyr_offset[2] >> 8) & 0xFF)            
+
+            return True
+     
+        except:
+            return False
+#--------------------------------------------
     # callback to read data from sensor
     def read_data():
         # read from sensor
@@ -321,7 +411,7 @@ def main(args=None):
    
     
     # try to connect
-    usb_con = open_serial(port.value, int(baudrate.value), 0.02)
+    usb_con = open_serial(port.value, baudrate, 0.02)
     # configure imu
     if (configure(usb_con)):
         # successfully configured
