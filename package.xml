@@ -3,7 +3,7 @@
 <package format="3">
   <name>bno055</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Driver for BNO055</description>
   <maintainer email="evanflynn.msu@gmail.com">flynneva</maintainer>
   <license>BSD</license>
 
