@@ -34,8 +34,6 @@ jobs:
           - docker_image: ubuntu:focal
             ros_distribution: rolling
             ros_version: 2
-            strategy:
-        linter: [copyright, flake8, mypy, pep257, pep8, xmllint]
     container:
       image: ${{ matrix.docker_image }}
     steps:
@@ -53,7 +51,7 @@ jobs:
           required-ros-distributions: ${{ matrix.ros_distribution }}
       - uses: ros-tooling/action-ros-lint@master
         with:
-          linter: ${{ matrix.linter }}
+          linter: [copyright, flake8, mypy, pep257, pep8, xmllint]
           package-name: bno055
       - name: install dependencies
         run: "pip3 install -r ros_ws/src/requirements.txt"
