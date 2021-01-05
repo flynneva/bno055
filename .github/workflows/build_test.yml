@@ -51,7 +51,7 @@ jobs:
           required-ros-distributions: ${{ matrix.ros_distribution }}
       - uses: ros-tooling/action-ros-lint@master
         with:
-          linter: copyright flake8 mypy pep257 pep8 xmllint
+          linter: flake8
           package-name: bno055
       - name: install dependencies
         run: "pip3 install -r ros_ws/src/requirements.txt"
