@@ -2,6 +2,3 @@
 
 # bno055/bno055.py: 42
 serial == 0.0.97
-
-# bno055/setup.py: 1
-setuptools == 45.2.0
