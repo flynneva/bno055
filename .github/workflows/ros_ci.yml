@@ -3,7 +3,7 @@ name: ROS2 CI
 on:
   pull_request:
     branches:
-      - 'devel'
+      - 'develop'
       - 'main'
 
 jobs:
