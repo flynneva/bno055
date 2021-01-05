@@ -43,8 +43,10 @@ from time import time
 import binascii
 import struct
 
-import Bno055Constants
-from connectors import Connector, UARTConnector, I2CConnector
+from bno055 import bno055_registers
+
+from bno055.UARTConnector import UARTConnector
+from bno055.I2CConnector import I2CConnector
 
 CONNECTIONTYPE_UART = "uart"
 CONNECTIONTYPE_I2C = "i2c"
@@ -72,7 +74,7 @@ def main(args=None):
 
     try:
         # first, declare parameters that will be set
-        node.declare_parameter('connectionType')
+        node.declare_parameter('connection_type')
         node.declare_parameter('port')
         node.declare_parameter('baudrate')
         node.declare_parameter('frame_id')
@@ -105,40 +107,39 @@ def main(args=None):
         node.get_logger().warn('Could not get parameters...setting variables to default')
         node.get_logger().warn('Error: "%s"' % e)
 
-
     # ------------------------
     def configure():
         node.get_logger().info("Configuring device...")
-        data = connector.receive(Bno055Constants.CHIP_ID, 1)
+        data = connector.receive(bno055_registers.CHIP_ID, 1)
         #node.get_logger().info('device sent: "%s"' % data)
-        if data == 0 or data[0] != Bno055Constants.BNO055_ID:
+        if data == 0 or data[0] != bno055_registers.BNO055_ID:
             node.get_logger().warn("Device ID is incorrect...shutting down.")
             sys.exit(1)
 
         # IMU connected, configure it
         # IMU Configuration
-        if not(connector.write(Bno055Constants.OPER_MODE, 1, Bno055Constants.OPER_MODE_CONFIG)):
+        if not(connector.write(bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_CONFIG)):
             node.get_logger().warn("Unable to set IMU into config mode.")
 
-        if not(connector.write(Bno055Constants.PWR_MODE, 1, Bno055Constants.PWR_MODE_NORMAL)):
+        if not(connector.write(bno055_registers.PWR_MODE, 1, bno055_registers.PWR_MODE_NORMAL)):
             node.get_logger().warn("Unable to set IMU normal power mode.")
 
-        if not(connector.write(Bno055Constants.PAGE_ID, 1, 0x00)):
+        if not(connector.write(bno055_registers.PAGE_ID, 1, 0x00)):
             node.get_logger().warn("Unable to set IMU register page 0.")
 
-        if not(connector.write(Bno055Constants.SYS_TRIGGER, 1, 0x00)):
+        if not(connector.write(bno055_registers.SYS_TRIGGER, 1, 0x00)):
             node.get_logger().warn("Unable to start IMU.")
 
-        if not(connector.write(Bno055Constants.UNIT_SEL, 1, 0x83)):
+        if not(connector.write(bno055_registers.UNIT_SEL, 1, 0x83)):
             node.get_logger().warn("Unable to set IMU units.")
 
-        if not(connector.write(Bno055Constants.AXIS_MAP_CONFIG, 1, 0x24)):
+        if not(connector.write(bno055_registers.AXIS_MAP_CONFIG, 1, 0x24)):
             node.get_logger().warn("Unable to remap IMU axis.")
 
-        if not(connector.write(Bno055Constants.AXIS_MAP_SIGN, 1, 0x06)):
+        if not(connector.write(bno055_registers.AXIS_MAP_SIGN, 1, 0x06)):
             node.get_logger().warn("Unable to set IMU axis signs.")
 
-        if not(connector.write(Bno055Constants.OPER_MODE, 1, Bno055Constants.OPER_MODE_NDOF)):
+        if not(connector.write(bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_NDOF)):
             node.get_logger().warn("Unable to set IMU operation mode into operation mode.")
 
         node.get_logger().info("Bosch BNO055 IMU configuration complete.")
@@ -149,8 +150,8 @@ def main(args=None):
     # Read data from serial connection
     def receive(usb_con, reg_addr, length):
         buf_out = bytearray()
-        buf_out.append(Bno055Constants.START_BYTE_WR)
-        buf_out.append(Bno055Constants.READ)
+        buf_out.append(bno055_registers.START_BYTE_WR)
+        buf_out.append(bno055_registers.READ)
         buf_out.append(reg_addr)
         buf_out.append(length)
 
@@ -162,7 +163,7 @@ def main(args=None):
             return 0
 
         # Check if response is correct
-        if (buf_in.__len__() != (2 + length)) or (buf_in[0] != Bno055Constants.START_BYTE_RESP):
+        if (buf_in.__len__() != (2 + length)) or (buf_in[0] != bno055_registers.START_BYTE_RESP):
             #node.get_logger().warn("Incorrect device response.")
             return 0
         buf_in.pop(0)
@@ -172,8 +173,8 @@ def main(args=None):
     # -----------------------------
     def write(usb_con, reg_addr, length, data):
         buf_out = bytearray()
-        buf_out.append(Bno055Constants.START_BYTE_WR)
-        buf_out.append(Bno055Constants.WRITE)
+        buf_out.append(bno055_registers.START_BYTE_WR)
+        buf_out.append(bno055_registers.WRITE)
         buf_out.append(reg_addr)
         buf_out.append(length)
         buf_out.append(data)
@@ -192,7 +193,7 @@ def main(args=None):
     # --------------------------------------------
     # Read calibration status for sys/gyro/acc/mag and display to screen (JK) (0 = bad, 3 = best)
     def get_calib_status (ser):
-        calib_status = receive(ser, Bno055Constants.CALIB_STAT, 1)
+        calib_status = receive(ser, bno055_registers.CALIB_STAT, 1)
         try:
             sys = (calib_status[0] >> 6) & 0x03
             gyro = (calib_status[0] >> 4) & 0x03;
@@ -205,17 +206,17 @@ def main(args=None):
     # Read all calibration offsets and print to screen (JK)
     def get_calib_offsets (ser):
         try:
-            accel_offset_read = receive(ser, Bno055Constants.ACC_OFFSET, 6)
+            accel_offset_read = receive(ser, bno055_registers.ACC_OFFSET, 6)
             accel_offset_read_x = (accel_offset_read[1] << 8) | accel_offset_read[0]   # Combine MSB and LSB registers into one decimal
             accel_offset_read_y = (accel_offset_read[3] << 8) | accel_offset_read[2]   # Combine MSB and LSB registers into one decimal
             accel_offset_read_z = (accel_offset_read[5] << 8) | accel_offset_read[4]   # Combine MSB and LSB registers into one decimal
 
-            mag_offset_read = receive(ser, Bno055Constants.MAG_OFFSET, 6)
+            mag_offset_read = receive(ser, bno055_registers.MAG_OFFSET, 6)
             mag_offset_read_x = (mag_offset_read[1] << 8) | mag_offset_read[0]   # Combine MSB and LSB registers into one decimal
             mag_offset_read_y = (mag_offset_read[3] << 8) | mag_offset_read[2]   # Combine MSB and LSB registers into one decimal
             mag_offset_read_z = (mag_offset_read[5] << 8) | mag_offset_read[4]   # Combine MSB and LSB registers into one decimal
 
-            gyro_offset_read = receive(ser, Bno055Constants.GYR_OFFSET, 6)
+            gyro_offset_read = receive(ser, bno055_registers.GYR_OFFSET, 6)
             gyro_offset_read_x = (gyro_offset_read[1] << 8) | gyro_offset_read[0]   # Combine MSB and LSB registers into one decimal
             gyro_offset_read_y = (gyro_offset_read[3] << 8) | gyro_offset_read[2]   # Combine MSB and LSB registers into one decimal
             gyro_offset_read_z = (gyro_offset_read[5] << 8) | gyro_offset_read[4]   # Combine MSB and LSB registers into one decimal
@@ -227,32 +228,32 @@ def main(args=None):
     # Write out calibration values (define as 16 bit signed hex)
     def set_calib_offsets (ser, acc_offset, mag_offset, gyr_offset):
         # Must switch to config mode to write out
-        if not(write(ser, Bno055Constants.OPER_MODE, 1, Bno055Constants.OPER_MODE_CONFIG)):
+        if not(write(ser, bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_CONFIG)):
             rospy.logerr("Unable to set IMU into config mode.")
         time.sleep(0.025)
 
         # Seems to only work when writing 1 register at a time
         try:
-            write(ser, Bno055Constants.ACC_OFFSET, 1, acc_offset[0] & 0xFF)                # ACC X LSB
-            write(ser, Bno055Constants.ACC_OFFSET+1, 1, (acc_offset[0] >> 8) & 0xFF)       # ACC X MSB
-            write(ser, Bno055Constants.ACC_OFFSET+2, 1, acc_offset[1] & 0xFF)
-            write(ser, Bno055Constants.ACC_OFFSET+3, 1, (acc_offset[1] >> 8) & 0xFF)
-            write(ser, Bno055Constants.ACC_OFFSET+4, 1, acc_offset[2] & 0xFF)
-            write(ser, Bno055Constants.ACC_OFFSET+5, 1, (acc_offset[2] >> 8) & 0xFF)
+            write(ser, bno055_registers.ACC_OFFSET, 1, acc_offset[0] & 0xFF)                # ACC X LSB
+            write(ser, bno055_registers.ACC_OFFSET + 1, 1, (acc_offset[0] >> 8) & 0xFF)       # ACC X MSB
+            write(ser, bno055_registers.ACC_OFFSET + 2, 1, acc_offset[1] & 0xFF)
+            write(ser, bno055_registers.ACC_OFFSET + 3, 1, (acc_offset[1] >> 8) & 0xFF)
+            write(ser, bno055_registers.ACC_OFFSET + 4, 1, acc_offset[2] & 0xFF)
+            write(ser, bno055_registers.ACC_OFFSET + 5, 1, (acc_offset[2] >> 8) & 0xFF)
 
-            write(ser, Bno055Constants.MAG_OFFSET, 1, mag_offset[0] & 0xFF)
-            write(ser, Bno055Constants.MAG_OFFSET+1, 1, (mag_offset[0] >> 8) & 0xFF)
-            write(ser, Bno055Constants.MAG_OFFSET+2, 1, mag_offset[1] & 0xFF)
-            write(ser, Bno055Constants.MAG_OFFSET+3, 1, (mag_offset[1] >> 8) & 0xFF)
-            write(ser, Bno055Constants.MAG_OFFSET+4, 1, mag_offset[2] & 0xFF)
-            write(ser, Bno055Constants.MAG_OFFSET+5, 1, (mag_offset[2] >> 8) & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET, 1, mag_offset[0] & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET + 1, 1, (mag_offset[0] >> 8) & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET + 2, 1, mag_offset[1] & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET + 3, 1, (mag_offset[1] >> 8) & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET + 4, 1, mag_offset[2] & 0xFF)
+            write(ser, bno055_registers.MAG_OFFSET + 5, 1, (mag_offset[2] >> 8) & 0xFF)
 
-            write(ser, Bno055Constants.GYR_OFFSET, 1, gyr_offset[0] & 0xFF)
-            write(ser, Bno055Constants.GYR_OFFSET+1, 1, (gyr_offset[0] >> 8) & 0xFF)
-            write(ser, Bno055Constants.GYR_OFFSET+2, 1, gyr_offset[1] & 0xFF)
-            write(ser, Bno055Constants.GYR_OFFSET+3, 1, (gyr_offset[1] >> 8) & 0xFF)
-            write(ser, Bno055Constants.GYR_OFFSET+4, 1, gyr_offset[2] & 0xFF)
-            write(ser, Bno055Constants.GYR_OFFSET+5, 1, (gyr_offset[2] >> 8) & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET, 1, gyr_offset[0] & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET + 1, 1, (gyr_offset[0] >> 8) & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET + 2, 1, gyr_offset[1] & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET + 3, 1, (gyr_offset[1] >> 8) & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET + 4, 1, gyr_offset[2] & 0xFF)
+            write(ser, bno055_registers.GYR_OFFSET + 5, 1, (gyr_offset[2] >> 8) & 0xFF)
 
             return True
 
@@ -262,7 +263,7 @@ def main(args=None):
     # callback to read data from sensor
     def read_data():
         # read from sensor
-        buf = receive(usb_con, Bno055Constants.ACCEL_DATA, 45)
+        buf = receive(usb_con, bno055_registers.ACCEL_DATA, 45)
         # Publish raw data
         # TODO: convert rcl Clock time to ros time?
         #imu_raw_msg.header.stamp = node.get_clock().now()
@@ -327,7 +328,11 @@ def main(args=None):
     if connection_type is CONNECTIONTYPE_UART:
         connector = UARTConnector(node, baudrate.value, port.value, 0.02)
     elif connection_type is CONNECTIONTYPE_I2C:
+        # TODO implement IC2 integration
         node.get_logger().error('I2C not yet supported')
+        sys.exit(1)
+    else:
+        node.get_logger().error('Unsupported connection type: ' + str(connection_type.value))
         sys.exit(1)
 
     # Connect to BNO055 device:

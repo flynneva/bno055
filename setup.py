@@ -1,13 +1,16 @@
 from setuptools import setup
- 
+from setuptools import find_packages
+
 package_name = 'bno055'
- 
+
 setup(
     name=package_name,
-    version='0.0.0',
-    packages=[],
+    version='1.0.0',
+    # find sub-packages automatically in order to allow sub-modules, etc. to be imported:
+    #packages=[package_name],
+    packages=find_packages(exclude=['test']),
     py_modules=[
-        package_name,
+        package_name + '.bno055',
     ],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -32,7 +35,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'bno055 = bno055:main',
+            'bno055 = bno055.bno055:main',
         ],
     },
 )
