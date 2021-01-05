@@ -1,15 +1,11 @@
 bno055:
   ros__parameters:
-    connection_type: "uart"      # The type of the sensor connection. Either "uart" or "i2c"
-    port: "/dev/ttyUSB0"        # UART port
-    baudrate: 115200            # UART baud rate
-    # TODO add I2C configuration parameters
-    frequency: 100              # Node timer frequency in Hz
-    frame_id: "bno055"          # tf frame id
-    operation_mode: 0x0C        # sensor operation mode
-    # +/- 2000 units (at max 2G)    (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
+    connection_type: "uart"
+    port: "/dev/ttyUSB0"
+    baudrate: 115200
+    frequency: 100
+    frame_id: "bno055"
+    operation_mode: 0x0C
     acc_offset: [0xFFEC, 0x00A5, 0xFFE8]
-    # +/- 6400 units                (1 unit = 1/16 uT)
     mag_offset: [0xFFB4, 0xFE9E, 0x027D]
-    # +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
     gyr_offset: [0x0002, 0xFFFF, 0xFFFF]

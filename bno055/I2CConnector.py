@@ -3,6 +3,9 @@ from rclpy.node import Node
 
 
 class I2CConnector(Connector):
+
+    CONNECTIONTYPE_I2C = 'i2c'
+
     def __init__(self, node: Node):
         # Initialize parent
-        super().__init__(self, node)
+        super().__init__(node)

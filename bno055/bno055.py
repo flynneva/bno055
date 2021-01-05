@@ -44,12 +44,9 @@ import binascii
 import struct
 
 from bno055 import bno055_registers
-
 from bno055.UARTConnector import UARTConnector
 from bno055.I2CConnector import I2CConnector
-
-CONNECTIONTYPE_UART = "uart"
-CONNECTIONTYPE_I2C = "i2c"
+from bno055.params.Parameters import Parameters
 
 def main(args=None):
     rclpy.init()
@@ -72,40 +69,8 @@ def main(args=None):
     mag_fact = 16.0
     gyr_fact = 900.0
 
-    try:
-        # first, declare parameters that will be set
-        node.declare_parameter('connection_type')
-        node.declare_parameter('port')
-        node.declare_parameter('baudrate')
-        node.declare_parameter('frame_id')
-        node.declare_parameter('frequency')
-        node.declare_parameter('operation_mode')
-        node.declare_parameter('acc_offset')
-        node.declare_parameter('mag_offset')
-        node.declare_parameter('gyr_offset')
-        # then get the parameters
-        node.get_logger().info('Parameters set to:')
-        connection_type = node.get_parameter('connection_type')
-        node.get_logger().info('    bno055/connection_type:    "%s"' % connection_type.value)
-        frame_id = node.get_parameter('frame_id')
-        node.get_logger().info('    bno055/frame_id:    "%s"' % frame_id.value)
-        port = node.get_parameter('port')
-        node.get_logger().info('    bno055/port:        "%s"' % port.value)
-        baudrate = node.get_parameter('baudrate')
-        node.get_logger().info('    bno055/baudrate:        "%s"' % baudrate.value)
-        frequency = node.get_parameter('frequency')
-        node.get_logger().info('    bno055/frequency:   "%s"' % frequency.value)
-        operation_mode = node.get_parameter('operation_mode')
-        node.get_logger().info('    bno055/operation_mode:    "%s"' % operation_mode.value)
-        acc_offset = node.get_parameter('acc_offset')
-        node.get_logger().info('    bno055/acc_offset:    "%s"' % acc_offset.value)
-        mag_offset = node.get_parameter('mag_offset')
-        node.get_logger().info('    bno055/mag_offset:    "%s"' % mag_offset.value)
-        gyr_offset = node.get_parameter('gyr_offset')
-        node.get_logger().info('    bno055/gyr_offset:    "%s"' % gyr_offset.value)
-    except Exception as e:
-        node.get_logger().warn('Could not get parameters...setting variables to default')
-        node.get_logger().warn('Error: "%s"' % e)
+    # Initialize Parameters:
+    param = Parameters(node)
 
     # ------------------------
     def configure():
@@ -146,7 +111,7 @@ def main(args=None):
         return 1
 
     # -----------------------
-    #TODO: might want to seperate this into its own seperate class for ROS2?
+    # TODO: might want to seperate this into its own seperate class for ROS2?
     # Read data from serial connection
     def receive(usb_con, reg_addr, length):
         buf_out = bytearray()
@@ -267,7 +232,7 @@ def main(args=None):
         # Publish raw data
         # TODO: convert rcl Clock time to ros time?
         #imu_raw_msg.header.stamp = node.get_clock().now()
-        imu_raw_msg.header.frame_id = frame_id.value
+        imu_raw_msg.header.frame_id = param.frame_id.value
         # TODO: do headers need sequence counters now?
         #imu_raw_msg.header.seq = seq
         if buf != 0:
@@ -288,7 +253,7 @@ def main(args=None):
                 # TODO: make this an option to publish?
                 # Publish filtered data
                 #imu_msg.header.stamp = node.get_clock().now()
-                imu_msg.header.frame_id = frame_id.value
+                imu_msg.header.frame_id = param.frame_id.value
                 #imu_msg.header.seq = seq
                 imu_msg.orientation.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
                 imu_msg.orientation.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
@@ -306,7 +271,7 @@ def main(args=None):
 
                 # Publish magnetometer data
                 #mag_msg.header.stamp = node.get_clock().now()
-                mag_msg.header.frame_id = frame_id.value
+                mag_msg.header.frame_id = param.frame_id.value
                 #mag_msg.header.seq = seq
                 mag_msg.magnetic_field.x = float(struct.unpack('h', struct.pack('BB', buf[6], buf[7]))[0]) / mag_fact
                 mag_msg.magnetic_field.y = float(struct.unpack('h', struct.pack('BB', buf[8], buf[9]))[0]) / mag_fact
@@ -315,7 +280,7 @@ def main(args=None):
 
                 # Publish temperature
                 #temp_msg.header.stamp = node.get_clock().now()
-                temp_msg.header.frame_id = frame_id.value
+                temp_msg.header.frame_id = param.frame_id.value
                 #temp_msg.header.seq = seq
                 temp_msg.temperature = float(buf[44])
                 pub_temp.publish(temp_msg)
@@ -325,14 +290,14 @@ def main(args=None):
                 node.get_logger().warn('Error: "%s"' % e)
 
     # Get connector according to configured sensor connection type:
-    if connection_type is CONNECTIONTYPE_UART:
-        connector = UARTConnector(node, baudrate.value, port.value, 0.02)
-    elif connection_type is CONNECTIONTYPE_I2C:
+    if param.connection_type.value == UARTConnector.CONNECTIONTYPE_UART:
+        connector = UARTConnector(node, param.baudrate.value, param.port.value, 0.02)
+    elif param.connection_type.value == I2CConnector.CONNECTIONTYPE_I2C:
         # TODO implement IC2 integration
         node.get_logger().error('I2C not yet supported')
         sys.exit(1)
     else:
-        node.get_logger().error('Unsupported connection type: ' + str(connection_type.value))
+        node.get_logger().error('Unsupported connection type: ' + str(param.connection_type.value))
         sys.exit(1)
 
     # Connect to BNO055 device:
@@ -342,7 +307,7 @@ def main(args=None):
     configure()
 
     # start regular sensor transmissions:
-    f = 1.0 / float(frequency.value)
+    f = 1.0 / float(param.frequency.value)
     timer = node.create_timer(f, read_data)
 
     rclpy.spin(node)
