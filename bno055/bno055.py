@@ -37,7 +37,6 @@
 
 import rclpy
 from rclpy.node import Node
-import sys
 
 from bno055.connectors.uart import UART
 from bno055.connectors.i2c import I2C
@@ -91,6 +90,7 @@ def main(args=None):
     def read_data():
         """Callback for periodic timer executions in order to retrieve sensor IMU data"""
         node.sensor.get_sensor_data()
+
     f = 1.0 / float(node.param.frequency.value)
     timer = node.create_timer(f, read_data)
 

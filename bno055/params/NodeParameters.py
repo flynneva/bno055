@@ -76,4 +76,3 @@ class NodeParameters:
         except Exception as e:
             node.get_logger().warn('Could not get parameters...setting variables to default')
             node.get_logger().warn('Error: "%s"' % e)
-

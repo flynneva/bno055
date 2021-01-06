@@ -1,4 +1,3 @@
-
 # BOSCH BNO055 IMU Registers map and other information
 # Page 0 registers
 CHIP_ID = 0x00
@@ -52,7 +51,7 @@ OPER_MODE_NDOF = 0x0C
 #  Power modes
 PWR_MODE_NORMAL = 0x00
 PWR_MODE_LOW = 0x01
-PWR_MODE_SUSPEND  = 0x02
+PWR_MODE_SUSPEND = 0x02
 
 # Communication constants
 BNO055_ID = 0xa0

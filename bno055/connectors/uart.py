@@ -30,7 +30,8 @@ class UART(Connector):
         try:
             self.serialConnection = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
         except serial.serialutil.SerialException:
-            self.node.get_logger().info("Unable to connect to IMU at port " + self.port + ". Check to make sure your device is connected.")
+            self.node.get_logger().info("Unable to connect to IMU at port " + self.port
+                                        + ". Check to make sure your device is connected.")
             sys.exit(1)
 
     def read(self, numberOfBytes):
@@ -38,5 +39,3 @@ class UART(Connector):
 
     def write(self, data: bytearray):
         self.serialConnection.write(data)
-
-

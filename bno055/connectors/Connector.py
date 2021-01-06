@@ -1,7 +1,8 @@
 from rclpy.node import Node
 from bno055 import registers
 
-import binascii
+# import binascii
+
 
 class Connector:
     """
@@ -28,13 +29,13 @@ class Connector:
         try:
             self.write(buf_out)
             buf_in = bytearray(self.read(2 + length))
-            #print("Reading, wr: ", binascii.hexlify(buf_out), "  re: ", binascii.hexlify(buf_in))
-        except:
+            # print("Reading, wr: ", binascii.hexlify(buf_out), "  re: ", binascii.hexlify(buf_in))
+        except Exception:
             return 0
 
         # Check if response is correct
         if (buf_in.__len__() != (2 + length)) or (buf_in[0] != registers.START_BYTE_RESP):
-            #node.get_logger().warn("Incorrect device response.")
+            # node.get_logger().warn("Incorrect device response.")
             return 0
         buf_in.pop(0)
         buf_in.pop(0)
@@ -57,15 +58,13 @@ class Connector:
         buf_out.append(data)
 
         try:
-            usb_con.write(buf_out)
-            buf_in = bytearray(usb_con.read(2))
+            self.write(buf_out)
+            buf_in = bytearray(self.read(2))
             # print("Writing, wr: ", binascii.hexlify(buf_out), "  re: ", binascii.hexlify(buf_in))
-        except:
+        except Exception:
             return False
 
         if (buf_in.__len__() != 2) or (buf_in[1] != 0x01):
-            #rospy.logerr("Incorrect Bosh IMU device response.")
+            # rospy.logerr("Incorrect Bosh IMU device response.")
             return False
         return True
-
-
