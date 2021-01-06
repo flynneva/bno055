@@ -1,5 +1,5 @@
 from rclpy.node import Node
-from bno055.UARTConnector import UARTConnector
+from bno055.connectors.UARTConnector import UARTConnector
 
 
 class Parameters:

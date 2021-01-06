@@ -1,4 +1,4 @@
-from bno055.Connector import Connector
+from bno055.connectors.Connector import Connector
 from rclpy.node import Node
 
 
