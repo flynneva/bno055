@@ -24,12 +24,16 @@ class UARTConnector(Connector):
         #usb_con = open_serial(port, baudrate, 0.02)
 
         try:
-            self.conn = serial.Serial(self.port, self.baudrate, self.timeout)
+            self.conn = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
         except serial.serialutil.SerialException:
             self.node.get_logger().info("Unable to connect to IMU at port " + self.port + ". Check to make sure your device is connected.")
             sys.exit(1)
 
     def read(self, register, numBytes=1):
+        # TODO
+        pass
+
+    def write(self):
         # TODO
         pass
 

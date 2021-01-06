@@ -2,7 +2,7 @@ from rclpy.node import Node
 from bno055.connectors.UARTConnector import UARTConnector
 
 
-class Parameters:
+class NodeParameters:
     """
     ROS2 Node Parameter Handling
     See also
@@ -47,31 +47,31 @@ class Parameters:
 
         try:
             self.connection_type = node.get_parameter('connection_type')
-            node.get_logger().info('    connection_type:    "%s"' % self.connection_type.value)
-
-            self.frame_id = node.get_parameter('frame_id')
-            node.get_logger().info('    frame_id:    "%s"' % self.frame_id.value)
+            node.get_logger().info('\tconnection_type:\t"%s"' % self.connection_type.value)
 
             self.port = node.get_parameter('port')
-            node.get_logger().info('    port:        "%s"' % self.port.value)
+            node.get_logger().info('\tport:\t\t\t"%s"' % self.port.value)
 
             self.baudrate = node.get_parameter('baudrate')
-            node.get_logger().info('    baudrate:        "%s"' % self.baudrate.value)
+            node.get_logger().info('\tbaudrate:\t\t"%s"' % self.baudrate.value)
+
+            self.frame_id = node.get_parameter('frame_id')
+            node.get_logger().info('\tframe_id:\t\t"%s"' % self.frame_id.value)
 
             self.frequency = node.get_parameter('frequency')
-            node.get_logger().info('    frequency:   "%s"' % self.frequency.value)
+            node.get_logger().info('\tfrequency:\t\t"%s"' % self.frequency.value)
 
             self.operation_mode = node.get_parameter('operation_mode')
-            node.get_logger().info('    operation_mode:    "%s"' % self.operation_mode.value)
+            node.get_logger().info('\toperation_mode:\t\t"%s"' % self.operation_mode.value)
 
             self.acc_offset = node.get_parameter('acc_offset')
-            node.get_logger().info('    acc_offset:    "%s"' % self.acc_offset.value)
+            node.get_logger().info('\tacc_offset:\t\t"%s"' % self.acc_offset.value)
 
             self.mag_offset = node.get_parameter('mag_offset')
-            node.get_logger().info('    mag_offset:    "%s"' % self.mag_offset.value)
+            node.get_logger().info('\tmag_offset:\t\t"%s"' % self.mag_offset.value)
 
             self.gyr_offset = node.get_parameter('gyr_offset')
-            node.get_logger().info('    gyr_offset:    "%s"' % self.gyr_offset.value)
+            node.get_logger().info('\tgyr_offset:\t\t"%s"' % self.gyr_offset.value)
 
         except Exception as e:
             node.get_logger().warn('Could not get parameters...setting variables to default')
