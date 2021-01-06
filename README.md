@@ -6,8 +6,12 @@ A ROS2 driver for the sensor IMU Bosch BNO055. It was implemented only the UART 
 
 This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for ROS 1](https://github.com/mdrwiega/bosch_imu_driver)
 
-**Wiring Guide:**
-- Within BNO055: 3vo=PS1 to select UART.
+## Wiring Guide
+- On the BNO055 breakout connect Pin PS1 with 3.3V to select UART mode.
+
+### CP2104 USB-to-UART Bridge
+
+When using a CP2104 USB-to-UART Bridge:
 
 | BNO055 | CP2104 Friend    |
 | ------ | ---------------- |
@@ -18,13 +22,29 @@ This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for R
 
 **NOTE: on the CP2104 the pins above refer to the FTDI pins at the opposite end from the USB connector
 
-**Parameters:**
-  - **port**: /path/to/device/port default='/dev/ttyUSB0'
-  - **frame_id**: coordinate frame id of sensor default='bno055'
-  - **baudrate**: baudrate of sensor default=115200
-  - **frequency**: frequency to read data from sensor default=100 Hz
+## ROS Node Parameters
 
-**Publishes:**
+In order to configuration, please adjust the [node parameter file](bno055/params/bno055_params.yaml) and pass it
+as parameter when starting the node:
+
+    ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
+
+### UART Connection
+
+- **connection_type=uart**: Defines UART as sensor connection type; default='uart'
+- **port**: The UART port to use; default='/dev/ttyUSB0'
+- **baudrate**: The baud rate to use; default=115200
+  
+### Sensor Configuration
+
+- **frame_id**: coordinate frame id of sensor default='bno055'
+- **baudrate**: baudrate of sensor default=115200
+- **frequency**: frequency to read data from sensor default=100 Hz
+
+## ROS Topics
+
+ROS topics published by this ROS2 Node: 
+
   - **bno055/imu** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
   - **bno055/imu_raw** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
   - **bno055/temp** [(sensor_msgs/Temperature)](http://docs.ros.org/api/sensor_msgs/html/msg/Temperature.html)
@@ -67,12 +87,16 @@ Create a new project in your IDE from existing sources in `~/projects/bno055/ros
 You can now manipulate the remote ROS2 workspace using your local IDE (including git operations). 
 
 ### Running the ROS2 node
-Run the `bno055` ROS2 node:
+Run the `bno055` ROS2 node with default parameters:
 
     # source your local workspace (overlay) in addition to the ROS2 sourcing (underlay):
     source ~/ros2_ws/install/setup.sh
     # run the node:
     ros2 run bno055 bno055
+    
+Run with customized parameter file:
+
+    ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
     
     
 

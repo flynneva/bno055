@@ -64,11 +64,9 @@ class Bno055Node(Node):
             connector = UARTConnector(self, self.param.baudrate.value, self.param.port.value, 0.02)
         elif self.param.connection_type.value == I2CConnector.CONNECTIONTYPE_I2C:
             # TODO implement IC2 integration
-            self.get_logger().error('I2C not yet supported')
-            sys.exit(1)
+            raise NotImplementedError('I2C not yet implemented')
         else:
-            self.get_logger().error('Unsupported connection type: ' + str(self.param.connection_type.value))
-            sys.exit(1)
+            raise NotImplementedError('Unsupported connection type: ' + str(self.param.connection_type.value))
 
         # Connect to BNO055 device:
         connector.connect()

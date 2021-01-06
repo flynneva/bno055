@@ -6,7 +6,6 @@ from rclpy.node import Node
 from sensor_msgs.msg import Imu, Temperature, MagneticField
 from rclpy.qos import QoSProfile
 
-import binascii
 import struct
 
 import sys

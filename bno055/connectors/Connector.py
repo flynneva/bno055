@@ -1,6 +1,7 @@
 from rclpy.node import Node
 from bno055 import bno055_registers
 
+import binascii
 
 class Connector:
     """
@@ -11,7 +12,6 @@ class Connector:
     def __init__(self, node: Node):
         self.node = node
 
-    # Read data from serial connection
     def receive(self, reg_addr, length):
         """
         Receives data packages from the sensor
@@ -26,8 +26,8 @@ class Connector:
         buf_out.append(length)
 
         try:
-            usb_con.write(buf_out)
-            buf_in = bytearray(usb_con.read(2 + length))
+            self.write(buf_out)
+            buf_in = bytearray(self.read(2 + length))
             #print("Reading, wr: ", binascii.hexlify(buf_out), "  re: ", binascii.hexlify(buf_in))
         except:
             return 0
@@ -42,6 +42,13 @@ class Connector:
 
     # -----------------------------
     def transmit(self, reg_addr, length, data):
+        """
+        Transmit data packages to the sensor
+        :param reg_addr: The register address
+        :param length: The data length
+        :param data: data to transmit
+        :return:
+        """
         buf_out = bytearray()
         buf_out.append(bno055_registers.START_BYTE_WR)
         buf_out.append(bno055_registers.WRITE)
