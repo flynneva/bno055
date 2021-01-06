@@ -7,7 +7,7 @@ from rclpy.node import Node
 from bno055.connectors.Connector import Connector
 
 
-class UARTConnector(Connector):
+class UART(Connector):
     """
     Connector implementation for serial UART connection to the sensor
     """
@@ -26,7 +26,6 @@ class UARTConnector(Connector):
 
     def connect(self):
         self.node.get_logger().info('Opening serial port: "%s"...' % self.port)
-        #usb_con = open_serial(port, baudrate, 0.02)
 
         try:
             self.serialConnection = serial.Serial(self.port, self.baudrate, timeout=self.timeout)

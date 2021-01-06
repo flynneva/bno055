@@ -39,8 +39,8 @@ import rclpy
 from rclpy.node import Node
 import sys
 
-from bno055.connectors.UARTConnector import UARTConnector
-from bno055.connectors.I2CConnector import I2CConnector
+from bno055.connectors.uart import UART
+from bno055.connectors.i2c import I2C
 from bno055.params.NodeParameters import NodeParameters
 from bno055.sensor.SensorService import SensorService
 
@@ -60,9 +60,9 @@ class Bno055Node(Node):
         self.param = NodeParameters(self)
 
         # Get connector according to configured sensor connection type:
-        if self.param.connection_type.value == UARTConnector.CONNECTIONTYPE_UART:
-            connector = UARTConnector(self, self.param.baudrate.value, self.param.port.value, 0.02)
-        elif self.param.connection_type.value == I2CConnector.CONNECTIONTYPE_I2C:
+        if self.param.connection_type.value == UART.CONNECTIONTYPE_UART:
+            connector = UART(self, self.param.baudrate.value, self.param.port.value, 0.02)
+        elif self.param.connection_type.value == I2C.CONNECTIONTYPE_I2C:
             # TODO implement IC2 integration
             raise NotImplementedError('I2C not yet implemented')
         else:

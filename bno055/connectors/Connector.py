@@ -1,5 +1,5 @@
 from rclpy.node import Node
-from bno055 import bno055_registers
+from bno055 import registers
 
 import binascii
 
@@ -20,8 +20,8 @@ class Connector:
         :return:
         """
         buf_out = bytearray()
-        buf_out.append(bno055_registers.START_BYTE_WR)
-        buf_out.append(bno055_registers.READ)
+        buf_out.append(registers.START_BYTE_WR)
+        buf_out.append(registers.READ)
         buf_out.append(reg_addr)
         buf_out.append(length)
 
@@ -33,7 +33,7 @@ class Connector:
             return 0
 
         # Check if response is correct
-        if (buf_in.__len__() != (2 + length)) or (buf_in[0] != bno055_registers.START_BYTE_RESP):
+        if (buf_in.__len__() != (2 + length)) or (buf_in[0] != registers.START_BYTE_RESP):
             #node.get_logger().warn("Incorrect device response.")
             return 0
         buf_in.pop(0)
@@ -50,8 +50,8 @@ class Connector:
         :return:
         """
         buf_out = bytearray()
-        buf_out.append(bno055_registers.START_BYTE_WR)
-        buf_out.append(bno055_registers.WRITE)
+        buf_out.append(registers.START_BYTE_WR)
+        buf_out.append(registers.WRITE)
         buf_out.append(reg_addr)
         buf_out.append(length)
         buf_out.append(data)

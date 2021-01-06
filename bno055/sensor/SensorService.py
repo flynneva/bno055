@@ -1,17 +1,19 @@
 from bno055.connectors.Connector import Connector
 from bno055.params.NodeParameters import NodeParameters
-from bno055 import bno055_registers
+from bno055 import registers
 
 from rclpy.node import Node
 from sensor_msgs.msg import Imu, Temperature, MagneticField
 from rclpy.qos import QoSProfile
 
 import struct
-
 import sys
 from time import time
 
+
 class SensorService:
+    """Provides an interface for accessing the sensor's features & data"""
+
     def __init__(self, node: Node, connector: Connector, param: NodeParameters):
         self.node = node
         self.connector = connector
@@ -30,35 +32,35 @@ class SensorService:
         """
 
         self.node.get_logger().info("Configuring device...")
-        data = self.connector.receive(bno055_registers.CHIP_ID, 1)
+        data = self.connector.receive(registers.CHIP_ID, 1)
         #node.get_logger().info('device sent: "%s"' % data)
-        if data == 0 or data[0] != bno055_registers.BNO055_ID:
+        if data == 0 or data[0] != registers.BNO055_ID:
             self.node.get_logger().warn("Device ID is incorrect...shutting down.")
             sys.exit(1)
 
         # IMU connected => apply IMU Configuration:
-        if not(self.connector.transmit(bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_CONFIG)):
+        if not(self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_CONFIG)):
             self.node.get_logger().warn("Unable to set IMU into config mode.")
 
-        if not(self.connector.transmit(bno055_registers.PWR_MODE, 1, bno055_registers.PWR_MODE_NORMAL)):
+        if not(self.connector.transmit(registers.PWR_MODE, 1, registers.PWR_MODE_NORMAL)):
             self.node.get_logger().warn("Unable to set IMU normal power mode.")
 
-        if not(self.connector.transmit(bno055_registers.PAGE_ID, 1, 0x00)):
+        if not(self.connector.transmit(registers.PAGE_ID, 1, 0x00)):
             self.node.get_logger().warn("Unable to set IMU register page 0.")
 
-        if not(self.connector.transmit(bno055_registers.SYS_TRIGGER, 1, 0x00)):
+        if not(self.connector.transmit(registers.SYS_TRIGGER, 1, 0x00)):
             self.node.get_logger().warn("Unable to start IMU.")
 
-        if not(self.connector.transmit(bno055_registers.UNIT_SEL, 1, 0x83)):
+        if not(self.connector.transmit(registers.UNIT_SEL, 1, 0x83)):
             self.node.get_logger().warn("Unable to set IMU units.")
 
-        if not(self.connector.transmit(bno055_registers.AXIS_MAP_CONFIG, 1, 0x24)):
+        if not(self.connector.transmit(registers.AXIS_MAP_CONFIG, 1, 0x24)):
             self.node.get_logger().warn("Unable to remap IMU axis.")
 
-        if not(self.connector.transmit(bno055_registers.AXIS_MAP_SIGN, 1, 0x06)):
+        if not(self.connector.transmit(registers.AXIS_MAP_SIGN, 1, 0x06)):
             self.node.get_logger().warn("Unable to set IMU axis signs.")
 
-        if not(self.connector.transmit(bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_NDOF)):
+        if not(self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_NDOF)):
             self.node.get_logger().warn("Unable to set IMU operation mode into operation mode.")
 
         self.node.get_logger().info("Bosch BNO055 IMU configuration complete.")
@@ -81,7 +83,7 @@ class SensorService:
         gyr_fact = 900.0
 
         # read from sensor
-        buf = self.connector.receive(bno055_registers.ACCEL_DATA, 45)
+        buf = self.connector.receive(registers.ACCEL_DATA, 45)
         # Publish raw data
         # TODO: convert rcl Clock time to ros time?
         #imu_raw_msg.header.stamp = node.get_clock().now()
@@ -147,7 +149,7 @@ class SensorService:
         Read calibration status for sys/gyro/acc/mag and display to screen (JK) (0 = bad, 3 = best)
         :return:
         """
-        calib_status = self.connector.receive(bno055_registers.CALIB_STAT, 1)
+        calib_status = self.connector.receive(registers.CALIB_STAT, 1)
         try:
             sys = (calib_status[0] >> 6) & 0x03
             gyro = (calib_status[0] >> 4) & 0x03;
@@ -160,17 +162,17 @@ class SensorService:
     # Read all calibration offsets and print to screen (JK)
     def get_calib_offsets(self):
         try:
-            accel_offset_read = self.connector.receive(bno055_registers.ACC_OFFSET, 6)
+            accel_offset_read = self.connector.receive(registers.ACC_OFFSET, 6)
             accel_offset_read_x = (accel_offset_read[1] << 8) | accel_offset_read[0]   # Combine MSB and LSB registers into one decimal
             accel_offset_read_y = (accel_offset_read[3] << 8) | accel_offset_read[2]   # Combine MSB and LSB registers into one decimal
             accel_offset_read_z = (accel_offset_read[5] << 8) | accel_offset_read[4]   # Combine MSB and LSB registers into one decimal
 
-            mag_offset_read = self.connector.receive(bno055_registers.MAG_OFFSET, 6)
+            mag_offset_read = self.connector.receive(registers.MAG_OFFSET, 6)
             mag_offset_read_x = (mag_offset_read[1] << 8) | mag_offset_read[0]   # Combine MSB and LSB registers into one decimal
             mag_offset_read_y = (mag_offset_read[3] << 8) | mag_offset_read[2]   # Combine MSB and LSB registers into one decimal
             mag_offset_read_z = (mag_offset_read[5] << 8) | mag_offset_read[4]   # Combine MSB and LSB registers into one decimal
 
-            gyro_offset_read = self.connector.receive(bno055_registers.GYR_OFFSET, 6)
+            gyro_offset_read = self.connector.receive(registers.GYR_OFFSET, 6)
             gyro_offset_read_x = (gyro_offset_read[1] << 8) | gyro_offset_read[0]   # Combine MSB and LSB registers into one decimal
             gyro_offset_read_y = (gyro_offset_read[3] << 8) | gyro_offset_read[2]   # Combine MSB and LSB registers into one decimal
             gyro_offset_read_z = (gyro_offset_read[5] << 8) | gyro_offset_read[4]   # Combine MSB and LSB registers into one decimal
@@ -183,32 +185,32 @@ class SensorService:
     # Write out calibration values (define as 16 bit signed hex)
     def set_calib_offsets (self, acc_offset, mag_offset, gyr_offset):
         # Must switch to config mode to write out
-        if not(self.connector.transmit(bno055_registers.OPER_MODE, 1, bno055_registers.OPER_MODE_CONFIG)):
+        if not(self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_CONFIG)):
             self.node.get_logger().error('Unable to set IMU into config mode')
         time.sleep(0.025)
 
         # Seems to only work when writing 1 register at a time
         try:
-            self.connector.transmit(bno055_registers.ACC_OFFSET, 1, acc_offset[0] & 0xFF)                # ACC X LSB
-            self.connector.transmit(bno055_registers.ACC_OFFSET + 1, 1, (acc_offset[0] >> 8) & 0xFF)       # ACC X MSB
-            self.connector.transmit(bno055_registers.ACC_OFFSET + 2, 1, acc_offset[1] & 0xFF)
-            self.connector.transmit(bno055_registers.ACC_OFFSET + 3, 1, (acc_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(bno055_registers.ACC_OFFSET + 4, 1, acc_offset[2] & 0xFF)
-            self.connector.transmit(bno055_registers.ACC_OFFSET + 5, 1, (acc_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.ACC_OFFSET, 1, acc_offset[0] & 0xFF)                # ACC X LSB
+            self.connector.transmit(registers.ACC_OFFSET + 1, 1, (acc_offset[0] >> 8) & 0xFF)       # ACC X MSB
+            self.connector.transmit(registers.ACC_OFFSET + 2, 1, acc_offset[1] & 0xFF)
+            self.connector.transmit(registers.ACC_OFFSET + 3, 1, (acc_offset[1] >> 8) & 0xFF)
+            self.connector.transmit(registers.ACC_OFFSET + 4, 1, acc_offset[2] & 0xFF)
+            self.connector.transmit(registers.ACC_OFFSET + 5, 1, (acc_offset[2] >> 8) & 0xFF)
 
-            self.connector.transmit(bno055_registers.MAG_OFFSET, 1, mag_offset[0] & 0xFF)
-            self.connector.transmit(bno055_registers.MAG_OFFSET + 1, 1, (mag_offset[0] >> 8) & 0xFF)
-            self.connector.transmit(bno055_registers.MAG_OFFSET + 2, 1, mag_offset[1] & 0xFF)
-            self.connector.transmit(bno055_registers.MAG_OFFSET + 3, 1, (mag_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(bno055_registers.MAG_OFFSET + 4, 1, mag_offset[2] & 0xFF)
-            self.connector.transmit(bno055_registers.MAG_OFFSET + 5, 1, (mag_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET, 1, mag_offset[0] & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET + 1, 1, (mag_offset[0] >> 8) & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET + 2, 1, mag_offset[1] & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET + 3, 1, (mag_offset[1] >> 8) & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET + 4, 1, mag_offset[2] & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET + 5, 1, (mag_offset[2] >> 8) & 0xFF)
 
-            self.connector.transmit(bno055_registers.GYR_OFFSET, 1, gyr_offset[0] & 0xFF)
-            self.connector.transmit(bno055_registers.GYR_OFFSET + 1, 1, (gyr_offset[0] >> 8) & 0xFF)
-            self.connector.transmit(bno055_registers.GYR_OFFSET + 2, 1, gyr_offset[1] & 0xFF)
-            self.connector.transmit(bno055_registers.GYR_OFFSET + 3, 1, (gyr_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(bno055_registers.GYR_OFFSET + 4, 1, gyr_offset[2] & 0xFF)
-            self.connector.transmit(bno055_registers.GYR_OFFSET + 5, 1, (gyr_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET, 1, gyr_offset[0] & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET + 1, 1, (gyr_offset[0] >> 8) & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET + 2, 1, gyr_offset[1] & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET + 3, 1, (gyr_offset[1] >> 8) & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET + 4, 1, gyr_offset[2] & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET + 5, 1, (gyr_offset[2] >> 8) & 0xFF)
             return True
         except:
             return False

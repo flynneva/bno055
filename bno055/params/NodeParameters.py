@@ -1,5 +1,5 @@
 from rclpy.node import Node
-from bno055.connectors.UARTConnector import UARTConnector
+from bno055.connectors.uart import UART
 
 
 class NodeParameters:
@@ -24,7 +24,7 @@ class NodeParameters:
         # TODO add I2C configuration parameters
 
         # The type of the sensor connection. Either "uart" or "i2c":
-        node.declare_parameter(name='connection_type', value=UARTConnector.CONNECTIONTYPE_UART)
+        node.declare_parameter(name='connection_type', value=UART.CONNECTIONTYPE_UART)
         # UART port
         node.declare_parameter('port', value='/dev/ttyUSB0')
         # UART Baud Rate
