@@ -1,9 +1,10 @@
 bno055:
   ros__parameters:
     connection_type: "uart"
-    port: "/dev/ttyUSB0"
-    baudrate: 115200
-    frequency: 100
+    uart_port: "/dev/ttyUSB0"
+    uart_baudrate: 115200
+    uart_timeout: 0.1
+    data_query_frequency: 100
     frame_id: "bno055"
     operation_mode: 0x0C
     acc_offset: [0xFFEC, 0x00A5, 0xFFE8]

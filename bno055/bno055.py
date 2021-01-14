@@ -38,6 +38,8 @@
 import rclpy
 from rclpy.node import Node
 
+import threading
+
 from bno055.connectors.uart import UART
 from bno055.connectors.i2c import I2C
 from bno055.params.NodeParameters import NodeParameters
@@ -60,7 +62,7 @@ class Bno055Node(Node):
 
         # Get connector according to configured sensor connection type:
         if self.param.connection_type.value == UART.CONNECTIONTYPE_UART:
-            connector = UART(self, self.param.baudrate.value, self.param.port.value, 0.02)
+            connector = UART(self, self.param.uart_baudrate.value, self.param.uart_port.value, self.param.uart_timeout.value)
         elif self.param.connection_type.value == I2C.CONNECTIONTYPE_I2C:
             # TODO implement IC2 integration
             raise NotImplementedError('I2C not yet implemented')
@@ -86,12 +88,28 @@ def main(args=None):
     node = Bno055Node()
     node.setup()
 
+    # Create lock object to prevent overlapping data queries
+    lock = threading.Lock()
+
     # start regular sensor transmissions:
     def read_data():
         """Callback for periodic timer executions in order to retrieve sensor IMU data"""
-        node.sensor.get_sensor_data()
+        if lock.locked():
+            # critical area still locked - that means that the previous data query is still being processed
+            node.get_logger().warn("Previous data query not yet finished - skipping query cycle")
+            return
 
-    f = 1.0 / float(node.param.frequency.value)
+        # Acquire lock before entering critical area in order to prevent overlapping data queries
+        lock.acquire()
+        try:
+            # perform synchronized block:
+            node.sensor.get_sensor_data()
+        finally:
+            lock.release()
+
+    # please be aware that frequencies around 30Hz and above might cause performance impacts:
+    # https://github.com/ros2/rclpy/issues/520
+    f = 1.0 / float(node.param.data_query_frequency.value)
     timer = node.create_timer(f, read_data)
 
     rclpy.spin(node)

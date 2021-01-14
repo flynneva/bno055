@@ -16,23 +16,21 @@ class NodeParameters:
     """
 
     def __init__(self, node: Node):
-
         node.get_logger().info('Initializing parameters')
-
         # Declare parameters of the ROS2 node and their default values:
-
-        # TODO add I2C configuration parameters
 
         # The type of the sensor connection. Either "uart" or "i2c":
         node.declare_parameter(name='connection_type', value=UART.CONNECTIONTYPE_UART)
         # UART port
-        node.declare_parameter('port', value='/dev/ttyUSB0')
+        node.declare_parameter('uart_port', value='/dev/ttyUSB0')
         # UART Baud Rate
-        node.declare_parameter('baudrate', value=115200)
+        node.declare_parameter('uart_baudrate', value=115200)
+        # UART Timeout in seconds
+        node.declare_parameter('uart_timeout', value=0.1)
         # tf frame id
         node.declare_parameter('frame_id', value='bno055')
-        # Node timer frequency in Hz
-        node.declare_parameter('frequency', value=100)
+        # Node timer frequency in Hz, defining how often sensor data is requested
+        node.declare_parameter('data_query_frequency', value=10)
         # sensor operation mode
         node.declare_parameter('operation_mode', value=0x0C)
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
@@ -49,17 +47,20 @@ class NodeParameters:
             self.connection_type = node.get_parameter('connection_type')
             node.get_logger().info('\tconnection_type:\t"%s"' % self.connection_type.value)
 
-            self.port = node.get_parameter('port')
-            node.get_logger().info('\tport:\t\t\t"%s"' % self.port.value)
+            self.uart_port = node.get_parameter('uart_port')
+            node.get_logger().info('\tuart_port:\t\t"%s"' % self.uart_port.value)
 
-            self.baudrate = node.get_parameter('baudrate')
-            node.get_logger().info('\tbaudrate:\t\t"%s"' % self.baudrate.value)
+            self.uart_baudrate = node.get_parameter('uart_baudrate')
+            node.get_logger().info('\tuart_baudrate:\t\t"%s"' % self.uart_baudrate.value)
+
+            self.uart_timeout = node.get_parameter('uart_timeout')
+            node.get_logger().info('\tuart_timeout:\t\t"%s"' % self.uart_timeout.value)
 
             self.frame_id = node.get_parameter('frame_id')
             node.get_logger().info('\tframe_id:\t\t"%s"' % self.frame_id.value)
 
-            self.frequency = node.get_parameter('frequency')
-            node.get_logger().info('\tfrequency:\t\t"%s"' % self.frequency.value)
+            self.data_query_frequency = node.get_parameter('data_query_frequency')
+            node.get_logger().info('\tdata_query_frequency:\t"%s"' % self.data_query_frequency.value)
 
             self.operation_mode = node.get_parameter('operation_mode')
             node.get_logger().info('\toperation_mode:\t\t"%s"' % self.operation_mode.value)

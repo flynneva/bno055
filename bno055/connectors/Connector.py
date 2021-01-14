@@ -1,7 +1,7 @@
 from rclpy.node import Node
 from bno055 import registers
 
-# import binascii
+import binascii
 
 
 class Connector:
@@ -33,12 +33,39 @@ class Connector:
         except Exception:
             return 0
 
-        # Check if response is correct
-        if (buf_in.__len__() != (2 + length)) or (buf_in[0] != registers.START_BYTE_RESP):
-            # node.get_logger().warn("Incorrect device response.")
+        # Check for valid response length (the smallest (error) message has at least 2 bytes):
+        if buf_in.__len__() < 2:
+            self.node.get_logger().warn("Unexpected length of READ-request response: %s" % buf_in.__len__())
             return 0
+
+        # Check for READ result (success or failure):
+        if buf_in[0] == registers.START_BYTE_ERROR_RESP:
+            # Error 0x07 (BUS_OVER_RUN_ERROR) can be "normal" if data fusion is not yet ready- see also
+            # https://community.bosch-sensortec.com/t5/MEMS-sensors-forum/BNO055-0x07-error-over-UART/td-p/14740
+            self.node.get_logger().warn("READ-request failed with error code %s" % hex(buf_in[1]))
+            return 0
+
+        # Check for correct READ response header:
+        if buf_in[0] != registers.START_BYTE_RESP:
+            self.node.get_logger().warn("Wrong READ-request response header %s" % hex(buf_in[0]))
+            return 0
+
+        if (buf_in.__len__()-2) != buf_in[1]:
+            self.node.get_logger().warn("Payload length mismatch detected : received=%s awaited=%s"
+                                        % (buf_in.__len__()-2, buf_in[1]))
+            return 0
+
+        # Check for correct READ-request response length
+        if buf_in.__len__() != (2 + length):
+            self.node.get_logger().warn("Incorrect READ-request response length: %s" % (2 + length))
+            return 0
+
+        # remove the 0xBB:
         buf_in.pop(0)
+        # remove the length information:
         buf_in.pop(0)
+
+        # Return the received payload:
         return buf_in
 
     # -----------------------------

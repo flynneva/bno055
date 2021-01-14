@@ -9,6 +9,7 @@ from rclpy.qos import QoSProfile
 import struct
 import sys
 from time import time
+#import binascii
 
 
 class SensorService:
@@ -34,8 +35,9 @@ class SensorService:
         self.node.get_logger().info("Configuring device...")
         data = self.connector.receive(registers.CHIP_ID, 1)
         # node.get_logger().info('device sent: "%s"' % data)
+        # print("device sent ", binascii.hexlify(data))
         if data == 0 or data[0] != registers.BNO055_ID:
-            self.node.get_logger().warn("Device ID is incorrect...shutting down.")
+            self.node.get_logger().warn("Device ID=%s is incorrect...shutting down" % data)
             sys.exit(1)
 
         # IMU connected => apply IMU Configuration:
@@ -155,6 +157,7 @@ class SensorService:
                 self.node.get_logger().warn('oops..something went wrong')
                 self.node.get_logger().warn('Error: "%s"' % e)
 
+# TODO maybe we should log the device's calibration state when launching the node
     def get_calib_status(self):
         """
         Read calibration status for sys/gyro/acc/mag and display to screen (JK) (0 = bad, 3 = best)
@@ -170,8 +173,11 @@ class SensorService:
         except Exception:
             self.node.get_logger().error('No calibration data received')
 
-    # Read all calibration offsets and print to screen (JK)
     def get_calib_offsets(self):
+        """
+        Read all calibration offsets and print to screen (JK)
+        :return:
+        """
         try:
             accel_offset_read = self.connector.receive(registers.ACC_OFFSET, 6)
             accel_offset_read_x = (accel_offset_read[1] << 8) | accel_offset_read[

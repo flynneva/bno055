@@ -7,7 +7,10 @@ A ROS2 driver for the sensor IMU Bosch BNO055. It was implemented only the UART 
 This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for ROS 1](https://github.com/mdrwiega/bosch_imu_driver)
 
 ## Wiring Guide
-- On the BNO055 breakout connect Pin PS1 with 3.3V to select UART mode.
+
+### Selecting Connection Type
+
+The default mode is I2C. Connect Pin PS1 with 3.3V to select UART mode. 
 
 ### CP2104 USB-to-UART Bridge
 
@@ -32,14 +35,15 @@ as parameter when starting the node:
 ### UART Connection
 
 - **connection_type=uart**: Defines UART as sensor connection type; default='uart'
-- **port**: The UART port to use; default='/dev/ttyUSB0'
-- **baudrate**: The baud rate to use; default=115200
+- **uart_port**: The UART port to use; default='/dev/ttyUSB0'
+- **uart_baudrate**: The baud rate to use; default=115200
+- **uart_timeout**: The timeout for UART transmissions in seconds to use; default=0.1
   
 ### Sensor Configuration
 
 - **frame_id**: coordinate frame id of sensor default='bno055'
 - **baudrate**: baudrate of sensor default=115200
-- **frequency**: frequency to read data from sensor default=100 Hz
+- **data_query_frequency**: frequency to read data from sensor default=100 Hz
 
 ## ROS Topics
 
