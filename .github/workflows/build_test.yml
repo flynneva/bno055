@@ -53,6 +53,7 @@ jobs:
         with:
           linter: flake8
           package-name: bno055
+          distribution: ${{ matrix.ros_distribution }}
       - name: install dependencies
         run: "pip3 install -r ros_ws/src/requirements.txt"
       - name: build and test
