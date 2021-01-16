@@ -166,9 +166,7 @@ class SensorService:
         temp_msg.temperature = float(buf[44])
         self.pub_temp.publish(temp_msg)
 
-
     def get_calib_status(self):
-
         """
         Read calibration status for sys/gyro/acc/mag.
         Quality scale: 0 = bad, 3 = best
@@ -222,37 +220,41 @@ class SensorService:
                 accel_offset_read_x, accel_offset_read_y, accel_offset_read_z, mag_offset_read_x, mag_offset_read_y,
                 mag_offset_read_z, gyro_offset_read_x, gyro_offset_read_y, gyro_offset_read_z))
 
-
-    # --------------------------------------------
-    # Write out calibration values (define as 16 bit signed hex)
     def set_calib_offsets(self, acc_offset, mag_offset, gyr_offset):
+        """
+        Write calibration data (define as 16 bit signed hex)
+        :param acc_offset:
+        :param mag_offset:
+        :param gyr_offset:
+        :return:
+        """
         # Must switch to config mode to write out
-        if not (self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_CONFIG)):
+        if not (self.connector.transmit(registers.OPER_MODE, 1, bytes([registers.OPER_MODE_CONFIG]))):
             self.node.get_logger().error('Unable to set IMU into config mode')
         time.sleep(0.025)
 
         # Seems to only work when writing 1 register at a time
         try:
-            self.connector.transmit(registers.ACC_OFFSET, 1, acc_offset[0] & 0xFF)  # ACC X LSB
-            self.connector.transmit(registers.ACC_OFFSET + 1, 1, (acc_offset[0] >> 8) & 0xFF)  # ACC X MSB
-            self.connector.transmit(registers.ACC_OFFSET + 2, 1, acc_offset[1] & 0xFF)
-            self.connector.transmit(registers.ACC_OFFSET + 3, 1, (acc_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(registers.ACC_OFFSET + 4, 1, acc_offset[2] & 0xFF)
-            self.connector.transmit(registers.ACC_OFFSET + 5, 1, (acc_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.ACC_OFFSET, 1, bytes([acc_offset[0] & 0xFF]))  # ACC X LSB
+            self.connector.transmit(registers.ACC_OFFSET + 1, 1, bytes([(acc_offset[0] >> 8) & 0xFF]))  # ACC X MSB
+            self.connector.transmit(registers.ACC_OFFSET + 2, 1, bytes([acc_offset[1] & 0xFF]))
+            self.connector.transmit(registers.ACC_OFFSET + 3, 1, bytes([(acc_offset[1] >> 8) & 0xFF]))
+            self.connector.transmit(registers.ACC_OFFSET + 4, 1, bytes([acc_offset[2] & 0xFF]))
+            self.connector.transmit(registers.ACC_OFFSET + 5, 1, bytes([(acc_offset[2] >> 8) & 0xFF]))
 
-            self.connector.transmit(registers.MAG_OFFSET, 1, mag_offset[0] & 0xFF)
-            self.connector.transmit(registers.MAG_OFFSET + 1, 1, (mag_offset[0] >> 8) & 0xFF)
-            self.connector.transmit(registers.MAG_OFFSET + 2, 1, mag_offset[1] & 0xFF)
-            self.connector.transmit(registers.MAG_OFFSET + 3, 1, (mag_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(registers.MAG_OFFSET + 4, 1, mag_offset[2] & 0xFF)
-            self.connector.transmit(registers.MAG_OFFSET + 5, 1, (mag_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.MAG_OFFSET, 1, bytes([mag_offset[0] & 0xFF]))
+            self.connector.transmit(registers.MAG_OFFSET + 1, 1, bytes([(mag_offset[0] >> 8) & 0xFF]))
+            self.connector.transmit(registers.MAG_OFFSET + 2, 1, bytes([mag_offset[1] & 0xFF]))
+            self.connector.transmit(registers.MAG_OFFSET + 3, 1, bytes([(mag_offset[1] >> 8) & 0xFF]))
+            self.connector.transmit(registers.MAG_OFFSET + 4, 1, bytes([mag_offset[2] & 0xFF]))
+            self.connector.transmit(registers.MAG_OFFSET + 5, 1, bytes([(mag_offset[2] >> 8) & 0xFF]))
 
-            self.connector.transmit(registers.GYR_OFFSET, 1, gyr_offset[0] & 0xFF)
-            self.connector.transmit(registers.GYR_OFFSET + 1, 1, (gyr_offset[0] >> 8) & 0xFF)
-            self.connector.transmit(registers.GYR_OFFSET + 2, 1, gyr_offset[1] & 0xFF)
-            self.connector.transmit(registers.GYR_OFFSET + 3, 1, (gyr_offset[1] >> 8) & 0xFF)
-            self.connector.transmit(registers.GYR_OFFSET + 4, 1, gyr_offset[2] & 0xFF)
-            self.connector.transmit(registers.GYR_OFFSET + 5, 1, (gyr_offset[2] >> 8) & 0xFF)
+            self.connector.transmit(registers.GYR_OFFSET, 1, bytes([gyr_offset[0] & 0xFF]))
+            self.connector.transmit(registers.GYR_OFFSET + 1, 1, bytes([(gyr_offset[0] >> 8) & 0xFF]))
+            self.connector.transmit(registers.GYR_OFFSET + 2, 1, bytes([gyr_offset[1] & 0xFF]))
+            self.connector.transmit(registers.GYR_OFFSET + 3, 1, bytes([(gyr_offset[1] >> 8) & 0xFF]))
+            self.connector.transmit(registers.GYR_OFFSET + 4, 1, bytes([gyr_offset[2] & 0xFF]))
+            self.connector.transmit(registers.GYR_OFFSET + 5, 1, bytes([(gyr_offset[2] >> 8) & 0xFF]))
             return True
         except Exception:
             return False
