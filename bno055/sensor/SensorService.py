@@ -46,29 +46,38 @@ class SensorService:
             sys.exit(1)
 
         # IMU connected => apply IMU Configuration:
-        if not (self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_CONFIG)):
+        if not (self.connector.transmit(registers.OPER_MODE, 1, bytes([registers.OPER_MODE_CONFIG]))):
             self.node.get_logger().warn("Unable to set IMU into config mode.")
 
-        if not (self.connector.transmit(registers.PWR_MODE, 1, registers.PWR_MODE_NORMAL)):
+        if not (self.connector.transmit(registers.PWR_MODE, 1, bytes([registers.PWR_MODE_NORMAL]))):
             self.node.get_logger().warn("Unable to set IMU normal power mode.")
 
-        if not (self.connector.transmit(registers.PAGE_ID, 1, 0x00)):
+        if not (self.connector.transmit(registers.PAGE_ID, 1, bytes([0x00]))):
             self.node.get_logger().warn("Unable to set IMU register page 0.")
 
-        if not (self.connector.transmit(registers.SYS_TRIGGER, 1, 0x00)):
+        if not (self.connector.transmit(registers.SYS_TRIGGER, 1, bytes([0x00]))):
             self.node.get_logger().warn("Unable to start IMU.")
 
-        if not (self.connector.transmit(registers.UNIT_SEL, 1, 0x83)):
+        if not (self.connector.transmit(registers.UNIT_SEL, 1, bytes([0x83]))):
             self.node.get_logger().warn("Unable to set IMU units.")
 
-        if not (self.connector.transmit(registers.AXIS_MAP_CONFIG, 1, 0x24)):
-            self.node.get_logger().warn("Unable to remap IMU axis.")
-
-        if not (self.connector.transmit(registers.AXIS_MAP_SIGN, 1, 0x06)):
-            self.node.get_logger().warn("Unable to set IMU axis signs.")
+        # The sensor placement configuration (Axis remapping) defines the position and orientation of the sensor mount.
+        # See also Bosch BNO055 datasheet section Axis Remap
+        mount_positions = {
+            "P0": bytes(b'\x21\x04'),
+            "P1": bytes(b'\x24\x00'),
+            "P2": bytes(b'\x24\x06'),
+            "P3": bytes(b'\x21\x02'),
+            "P4": bytes(b'\x24\x03'),
+            "P5": bytes(b'\x21\x02'),
+            "P6": bytes(b'\x21\x07'),
+            "P7": bytes(b'\x24\x05')
+        }
+        if not (self.connector.transmit( registers.AXIS_MAP_CONFIG, 2, mount_positions[self.param.placement_axis_remap.value])):
+            self.node.get_logger().warn("Unable to set sensor placement configuration.")
 
         # Set Device to NDOF mode (data fusion for gyroscope, acceleration sensor and magnetometer enabled; absolute orientation)
-        if not (self.connector.transmit(registers.OPER_MODE, 1, registers.OPER_MODE_NDOF)):
+        if not (self.connector.transmit(registers.OPER_MODE, 1, bytes([registers.OPER_MODE_NDOF]))):
             self.node.get_logger().warn("Unable to set IMU operation mode into operation mode.")
 
         self.node.get_logger().info("Bosch BNO055 IMU configuration complete.")

@@ -67,7 +67,7 @@ class Connector:
         return buf_in
 
     # -----------------------------
-    def transmit(self, reg_addr, length, data):
+    def transmit(self, reg_addr, length, data: bytes):
         """
         Transmit data packages to the sensor
         :param reg_addr: The register address
@@ -80,7 +80,10 @@ class Connector:
         buf_out.append(registers.WRITE)
         buf_out.append(reg_addr)
         buf_out.append(length)
-        buf_out.append(data)
+        # Append payload data to the written:
+        buf_out += data
+
+        # print("Writing: ", binascii.hexlify(buf_out))
 
         try:
             self.write(buf_out)

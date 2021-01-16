@@ -37,6 +37,8 @@ class NodeParameters:
         node.declare_parameter('calib_status_frequency', value=0.1)
         # sensor operation mode
         node.declare_parameter('operation_mode', value=0x0C)
+        # The sensor placement configuration (Axis remapping) defines the position and orientation of the sensor mount
+        node.declare_parameter('placement_axis_remap', value="P1")
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
         node.declare_parameter('acc_offset', value=[0xFFEC, 0x00A5, 0xFFE8])
         # +/- 6400 units (1 unit = 1/16 uT)
@@ -74,6 +76,9 @@ class NodeParameters:
 
             self.operation_mode = node.get_parameter('operation_mode')
             node.get_logger().info('\toperation_mode:\t\t"%s"' % self.operation_mode.value)
+
+            self.placement_axis_remap = node.get_parameter('placement_axis_remap')
+            node.get_logger().info('\tplacement_axis_remap:\t"%s"' % self.placement_axis_remap.value)
 
             self.acc_offset = node.get_parameter('acc_offset')
             node.get_logger().info('\tacc_offset:\t\t"%s"' % self.acc_offset.value)

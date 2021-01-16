@@ -44,14 +44,13 @@ as parameter when starting the node:
 - **frame_id**: coordinate frame id of sensor default='bno055'
 - **baudrate**: baudrate of sensor default=115200
 - **data_query_frequency**: frequency (HZ) to read and publish data from sensor; default=100 Hz
+- **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=0.1 Hz
+- **placement_axis_remap**: The sensor placement configuration (Axis remapping) defines the position and orientation of the sensor mount.
+See Bosch BNO055 datasheet section "Axis Remap" for valid positions: "P0", "P1" (default), "P2", "P3", "P4", "P5", "P6", "P7".   
 
 ### ROS Topic Prefix
 
 - **ros_topic_prefix**: ROS topic prefix to be used. Will be prepended to the default topic names (see below). Default="bno055/"
-
-### Calibration Status
-
-- **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=0.1 Hz
 
 ## ROS Topics
 
