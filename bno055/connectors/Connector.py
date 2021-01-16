@@ -1,5 +1,6 @@
 from rclpy.node import Node
 from bno055 import registers
+from bno055.error_handling.exceptions import TransmissionException
 
 import binascii
 
@@ -15,10 +16,11 @@ class Connector:
 
     def receive(self, reg_addr, length):
         """
-        Receives data packages from the sensor
+        Receives data packages of requested length from the sensor
         :param reg_addr: The register address
         :param length: The length of the data package to receive
-        :return:
+        :return: The received payload message
+        :raises TransmissionException in case of any error
         """
         buf_out = bytearray()
         buf_out.append(registers.START_BYTE_WR)
@@ -30,35 +32,31 @@ class Connector:
             self.write(buf_out)
             buf_in = bytearray(self.read(2 + length))
             # print("Reading, wr: ", binascii.hexlify(buf_out), "  re: ", binascii.hexlify(buf_in))
-        except Exception:
-            return 0
+        except Exception as e:
+            # re-raise as IOError
+            raise TransmissionException("Transmission error: %s" % e)
 
         # Check for valid response length (the smallest (error) message has at least 2 bytes):
         if buf_in.__len__() < 2:
-            self.node.get_logger().warn("Unexpected length of READ-request response: %s" % buf_in.__len__())
-            return 0
+            raise TransmissionException("Unexpected length of READ-request response: %s" % buf_in.__len__())
 
         # Check for READ result (success or failure):
         if buf_in[0] == registers.START_BYTE_ERROR_RESP:
             # Error 0x07 (BUS_OVER_RUN_ERROR) can be "normal" if data fusion is not yet ready- see also
             # https://community.bosch-sensortec.com/t5/MEMS-sensors-forum/BNO055-0x07-error-over-UART/td-p/14740
-            self.node.get_logger().warn("READ-request failed with error code %s" % hex(buf_in[1]))
-            return 0
+            raise TransmissionException("READ-request failed with error code %s" % hex(buf_in[1]))
 
         # Check for correct READ response header:
         if buf_in[0] != registers.START_BYTE_RESP:
-            self.node.get_logger().warn("Wrong READ-request response header %s" % hex(buf_in[0]))
-            return 0
+            raise TransmissionException("Wrong READ-request response header %s" % hex(buf_in[0]))
 
         if (buf_in.__len__()-2) != buf_in[1]:
-            self.node.get_logger().warn("Payload length mismatch detected : received=%s awaited=%s"
+            raise TransmissionException("Payload length mismatch detected : received=%s awaited=%s"
                                         % (buf_in.__len__()-2, buf_in[1]))
-            return 0
 
         # Check for correct READ-request response length
         if buf_in.__len__() != (2 + length):
-            self.node.get_logger().warn("Incorrect READ-request response length: %s" % (2 + length))
-            return 0
+            raise TransmissionException("Incorrect READ-request response length: %s" % (2 + length))
 
         # remove the 0xBB:
         buf_in.pop(0)

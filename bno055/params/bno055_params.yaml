@@ -1,10 +1,12 @@
 bno055:
   ros__parameters:
+    ros_topic_prefix: "my_imu"
     connection_type: "uart"
     uart_port: "/dev/ttyUSB0"
     uart_baudrate: 115200
     uart_timeout: 0.1
-    data_query_frequency: 100
+    data_query_frequency: 20
+    calib_status_frequency: 0.1
     frame_id: "bno055"
     operation_mode: 0x0C
     acc_offset: [0xFFEC, 0x00A5, 0xFFE8]

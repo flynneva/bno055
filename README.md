@@ -43,7 +43,15 @@ as parameter when starting the node:
 
 - **frame_id**: coordinate frame id of sensor default='bno055'
 - **baudrate**: baudrate of sensor default=115200
-- **data_query_frequency**: frequency to read data from sensor default=100 Hz
+- **data_query_frequency**: frequency (HZ) to read and publish data from sensor; default=100 Hz
+
+### ROS Topic Prefix
+
+- **ros_topic_prefix**: ROS topic prefix to be used. Will be prepended to the default topic names (see below). Default="bno055/"
+
+### Calibration Status
+
+- **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=0.1 Hz
 
 ## ROS Topics
 
@@ -51,8 +59,13 @@ ROS topics published by this ROS2 Node:
 
   - **bno055/imu** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
   - **bno055/imu_raw** [(sensor_msgs/Imu)](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)
-  - **bno055/temp** [(sensor_msgs/Temperature)](http://docs.ros.org/api/sensor_msgs/html/msg/Temperature.html)
+  - **bno055/temp** [(sensor_msgs/Temperature)](http://docs.ros.org/api/sensor_msgs/html/msg/Temperature.html); The sensor's ambient temperature
   - **bno055/mag** [(sensor_msgs/MagneticField)](http://docs.ros.org/api/sensor_msgs/html/msg/MagneticField.html)
+  - **bno055/calib_status** [(std_msgs/String)](http://docs.ros.org/en/api/std_msgs/html/msg/String.html) : 
+  Sensor Calibration Status as JSON string - e.g. `{"sys": 3, "gyro": 3, "accel": 0, "mag": 3}`
+  
+  
+while _bno055_ is the default ROS topic prefix and can be configured.
   
 ## Development Workspace Setup
 

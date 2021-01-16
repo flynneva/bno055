@@ -19,6 +19,8 @@ class NodeParameters:
         node.get_logger().info('Initializing parameters')
         # Declare parameters of the ROS2 node and their default values:
 
+        # The topic prefix to use (can be empty if not required)
+        node.declare_parameter(name='ros_topic_prefix', value="bno055/")
         # The type of the sensor connection. Either "uart" or "i2c":
         node.declare_parameter(name='connection_type', value=UART.CONNECTIONTYPE_UART)
         # UART port
@@ -31,6 +33,8 @@ class NodeParameters:
         node.declare_parameter('frame_id', value='bno055')
         # Node timer frequency in Hz, defining how often sensor data is requested
         node.declare_parameter('data_query_frequency', value=10)
+        # Node timer frequency in Hz, defining how often calibration status data is requested
+        node.declare_parameter('calib_status_frequency', value=0.1)
         # sensor operation mode
         node.declare_parameter('operation_mode', value=0x0C)
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
@@ -44,6 +48,9 @@ class NodeParameters:
         node.get_logger().info('Parameters set to:')
 
         try:
+            self.ros_topic_prefix = node.get_parameter('ros_topic_prefix')
+            node.get_logger().info('\tros_topic_prefix:\t"%s"' % self.ros_topic_prefix.value)
+
             self.connection_type = node.get_parameter('connection_type')
             node.get_logger().info('\tconnection_type:\t"%s"' % self.connection_type.value)
 
@@ -61,6 +68,9 @@ class NodeParameters:
 
             self.data_query_frequency = node.get_parameter('data_query_frequency')
             node.get_logger().info('\tdata_query_frequency:\t"%s"' % self.data_query_frequency.value)
+
+            self.calib_status_frequency = node.get_parameter('calib_status_frequency')
+            node.get_logger().info('\tcalib_status_frequency:\t"%s"' % self.calib_status_frequency.value)
 
             self.operation_mode = node.get_parameter('operation_mode')
             node.get_logger().info('\toperation_mode:\t\t"%s"' % self.operation_mode.value)
