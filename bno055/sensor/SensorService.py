@@ -1,17 +1,16 @@
-from bno055.connectors.Connector import Connector
-from bno055.params.NodeParameters import NodeParameters
-from bno055 import registers
-
-from rclpy.node import Node
-from sensor_msgs.msg import Imu, Temperature, MagneticField
-from std_msgs.msg import String
-from rclpy.qos import QoSProfile
-
-import struct
 import json
+import struct
 import sys
 from time import time
-import binascii
+
+from bno055 import registers
+from bno055.connectors.Connector import Connector
+from bno055.params.NodeParameters import NodeParameters
+
+from rclpy.node import Node
+from sensor_msgs.msg import Imu, MagneticField, Temperature
+from std_msgs.msg import String
+from rclpy.qos import QoSProfile
 
 
 class SensorService:

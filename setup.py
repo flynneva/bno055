@@ -1,5 +1,5 @@
-from setuptools import setup
 from setuptools import find_packages
+from setuptools import setup
 
 package_name = 'bno055'
 
@@ -20,9 +20,9 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     author='flynneva',
-    author_email="evanflynn.msu@gmail.com",
+    author_email='evanflynn.msu@gmail.com',
     maintainer='flynneva',
-    maintainer_email="evanflynn.msu@gmail.com",
+    maintainer_email='evanflynn.msu@gmail.com',
     keywords=['ROS', 'ROS2'],
     classifiers=[
         'Intended Audience :: Developers',
