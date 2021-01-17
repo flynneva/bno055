@@ -38,7 +38,9 @@
 import rclpy
 from rclpy.node import Node
 
+import sys
 import threading
+import traceback
 
 from bno055.connectors.uart import UART
 from bno055.connectors.i2c import I2C
@@ -80,44 +82,75 @@ class Bno055Node(Node):
 
 
 def main(args=None):
-    """Main entry method for this ROS2 node"""
-    # Initialize ROS Client Libraries (RCL) for Python:
-    rclpy.init()
+    try:
+        """Main entry method for this ROS2 node"""
+        # Initialize ROS Client Libraries (RCL) for Python:
+        rclpy.init()
 
-    # Create & initialize ROS2 node:
-    node = Bno055Node()
-    node.setup()
+        # Create & initialize ROS2 node:
+        node = Bno055Node()
+        node.setup()
 
-    # Create lock object to prevent overlapping data queries
-    lock = threading.Lock()
+        # Create lock object to prevent overlapping data queries
+        lock = threading.Lock()
 
-    # start regular sensor transmissions:
-    def read_data():
-        """Callback for periodic timer executions in order to retrieve sensor IMU data"""
-        if lock.locked():
-            # critical area still locked - that means that the previous data query is still being processed
-            node.get_logger().warn("Previous data query not yet finished - skipping query cycle")
-            return
+        def read_data():
+            """Callback for periodic data_query_timer executions in order to retrieve sensor IMU data"""
+            if lock.locked():
+                # critical area still locked - that means that the previous data query is still being processed
+                node.get_logger().warn("Message communication in progress - skipping query cycle")
+                return
 
-        # Acquire lock before entering critical area in order to prevent overlapping data queries
-        lock.acquire()
-        try:
-            # perform synchronized block:
-            node.sensor.get_sensor_data()
-        finally:
-            lock.release()
+            # Acquire lock before entering critical area in order to prevent overlapping data queries
+            lock.acquire()
+            try:
+                # perform synchronized block:
+                node.sensor.get_sensor_data()
+            except Exception as e:
+                node.get_logger().warn('Receiving sensor data failed with %s:"%s"' % (type(e).__name__, e))
+            finally:
+                lock.release()
 
-    # please be aware that frequencies around 30Hz and above might cause performance impacts:
-    # https://github.com/ros2/rclpy/issues/520
-    f = 1.0 / float(node.param.data_query_frequency.value)
-    timer = node.create_timer(f, read_data)
+        def log_calibration_status():
+            """Callback for periodic logging of calibration data (quality indicators)"""
+            if lock.locked():
+                # critical area still locked - that means that the previous data query is still being processed
+                node.get_logger().warn("Message communication in progress - skipping query cycle")
+                # traceback.print_exc()
+                return
 
-    rclpy.spin(node)
+            # Acquire lock before entering critical area in order to prevent overlapping data queries
+            lock.acquire()
+            try:
+                # perform synchronized block:
+                node.sensor.get_calib_status()
+            except Exception as e:
+                node.get_logger().warn('Receiving calibration status failed with %s:"%s"' % (type(e).__name__, e))
+                # traceback.print_exc()
+            finally:
+                lock.release()
 
-    # clean shutdown
-    node.destroy_timer(timer)
-    node.destroy_node()
-    rclpy.shutdown()
+        # start regular sensor transmissions:
+        # please be aware that frequencies around 30Hz and above might cause performance impacts:
+        # https://github.com/ros2/rclpy/issues/520
+        f = 1.0 / float(node.param.data_query_frequency.value)
+        data_query_timer = node.create_timer(f, read_data)
+
+        # start regular calibration status logging
+        f = 1.0 / float(node.param.calib_status_frequency.value)
+        status_timer = node.create_timer(f, log_calibration_status)
+
+        rclpy.spin(node)
+
+    except KeyboardInterrupt:
+        node.get_logger().info('Ctrl+C received - exiting...')
+        sys.exit(0)
+    finally:
+        node.get_logger().info('ROS node shutdown')
+        node.destroy_timer(data_query_timer)
+        node.destroy_timer(status_timer)
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
