@@ -60,7 +60,7 @@ def main(args=None):
         lock = threading.Lock()
 
         def read_data():
-            """Callback for periodic data_query_timer executions to retrieve sensor IMU data."""
+            """Periodic data_query_timer executions to retrieve sensor IMU data."""
             if lock.locked():
                 # critical area still locked
                 # that means that the previous data query is still being processed
@@ -79,7 +79,7 @@ def main(args=None):
                 lock.release()
 
         def log_calibration_status():
-            """Callback for periodic logging of calibration data (quality indicators)."""
+            """Periodic logging of calibration data (quality indicators)."""
             if lock.locked():
                 # critical area still locked
                 # that means that the previous data query is still being processed
