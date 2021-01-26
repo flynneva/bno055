@@ -68,7 +68,7 @@ class SensorService:
             if data[0] != registers.BNO055_ID:
                 raise IOError('Device ID=%s is incorrect' % data)
             # print("device sent ", binascii.hexlify(data))
-        except Exception as e:
+        except Exception as e:  # noqa: B902
             # This is the first communication - exit if it does not work
             self.node.get_logger().error('Communication error: %s' % e)
             self.node.get_logger().error('Shutting down ROS node...')
@@ -300,5 +300,5 @@ class SensorService:
             self.con.transmit(registers.GYR_OFFSET + 4, 1, bytes([gyr_offset[2] & 0xFF]))
             self.con.transmit(registers.GYR_OFFSET + 5, 1, bytes([(gyr_offset[2] >> 8) & 0xFF]))
             return True
-        except Exception:
+        except Exception:  # noqa: B902
             return False

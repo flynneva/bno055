@@ -122,6 +122,6 @@ class NodeParameters:
             self.gyr_offset = node.get_parameter('gyr_offset')
             node.get_logger().info('\tgyr_offset:\t\t"%s"' % self.gyr_offset.value)
 
-        except Exception as e:
+        except Exception as e:  # noqa: B902
             node.get_logger().warn('Could not get parameters...setting variables to default')
             node.get_logger().warn('Error: "%s"' % e)

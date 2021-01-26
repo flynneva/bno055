@@ -101,7 +101,7 @@ def main(args=None):
             try:
                 # perform synchronized block:
                 node.sensor.get_sensor_data()
-            except Exception as e:
+            except Exception as e:  # noqa: B902
                 node.get_logger().warn('Receiving sensor data failed with %s:"%s"'
                                        % (type(e).__name__, e))
             finally:
@@ -121,7 +121,7 @@ def main(args=None):
             try:
                 # perform synchronized block:
                 node.sensor.get_calib_status()
-            except Exception as e:
+            except Exception as e:  # noqa: B902
                 node.get_logger().warn('Receiving calibration status failed with %s:"%s"'
                                        % (type(e).__name__, e))
                 # traceback.print_exc()
