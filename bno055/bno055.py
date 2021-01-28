@@ -145,8 +145,11 @@ def main(args=None):
         sys.exit(0)
     finally:
         node.get_logger().info('ROS node shutdown')
-        node.destroy_timer(data_query_timer)
-        node.destroy_timer(status_timer)
+        try:
+            node.destroy_timer(data_query_timer)
+            node.destroy_timer(status_timer)
+        except UnboundLocalError:
+            node.get_logger().info('No timers to shutdown')
         node.destroy_node()
         rclpy.shutdown()
 
