@@ -32,6 +32,7 @@ import threading
 
 from bno055.connectors.i2c import I2C
 from bno055.connectors.uart import UART
+from bno055.error_handling.exceptions import BusOverRunException
 from bno055.params.NodeParameters import NodeParameters
 from bno055.sensor.SensorService import SensorService
 import rclpy
@@ -101,7 +102,12 @@ def main(args=None):
             try:
                 # perform synchronized block:
                 node.sensor.get_sensor_data()
+            except BusOverRunException as e:
+                # data not available yet, wait for next cycle
+                return
             except Exception as e:  # noqa: B902
+
+
                 node.get_logger().warn('Receiving sensor data failed with %s:"%s"'
                                        % (type(e).__name__, e))
             finally:
