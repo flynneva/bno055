@@ -73,9 +73,8 @@ class Connector:
         # Check for READ result (success or failure):
         if buf_in[0] == registers.START_BYTE_ERROR_RESP:
             # Error 0x07 (BUS_OVER_RUN_ERROR) can be "normal" if data fusion is not yet ready
-            # https://community.bosch-sensortec.com/t5/
-            # MEMS-sensors-forum/BNO055-0x07-error-over-UART/td-p/14740
             if buf_in[1] == 7:
+                # see #5
                 raise BusOverRunException('Data fusion not ready, resend read request')
             else:
                 raise TransmissionException('READ-request failed with error code %s'
@@ -85,15 +84,14 @@ class Connector:
             raise TransmissionException('Wrong READ-request response header %s' % hex(buf_in[0]))
 
         if (buf_in.__len__()-2) != buf_in[1]:
-            raise TransmissionException('Payload length mismatch detected: ' \
-                                        + '  received=%s' \
-                                        + '  awaited=%s' \
+            raise TransmissionException('Payload length mismatch detected: '
+                                        + '  received=%s, awaited=%s'
                                         % (buf_in.__len__()-2, buf_in[1]))
 
         # Check for correct READ-request response length
         if buf_in.__len__() != (2 + length):
             raise TransmissionException('Incorrect READ-request response length: %s'
-                                            % (2 + length))
+                                        % (2 + length))
 
         # remove the 0xBB:
         buf_in.pop(0)
