@@ -44,11 +44,6 @@ jobs:
           install-connext: false
           use-ros2-testing: false
           required-ros-distributions: ${{ matrix.ros_distribution }}
-      - uses: ros-tooling/action-ros-lint@master
-        with:
-          linter: flake8
-          package-name: bno055
-          distribution: ${{ matrix.ros_distribution }}
       - name: install dependencies
         run: "pip3 install -r ros_ws/src/requirements.txt"
       - name: build and test
