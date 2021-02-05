@@ -1,16 +1,17 @@
-# The bno055 ROS2 package
+# A BNO05 ROS2 Package 
 
 ## Description
-A ROS2 driver for the sensor IMU Bosch BNO055. It was implemented only the UART communication interface
-(correct sensor mode should be selected...see diagram below).
+A ROS2 driver for the sensor IMU Bosch BNO055.
 
 This repo was based off of [Michael Drwiega's work on the Bosch IMU Driver for ROS 1](https://github.com/mdrwiega/bosch_imu_driver)
 
+---
 ## Wiring Guide
 
 ### Selecting Connection Type
 
-The default mode is I2C. Connect Pin PS1 with 3.3V to select UART mode. 
+The default mode is I2C.
+To select UART mode connect the `3.3V` pin to the `PS1` pin.
 
 ### CP2104 USB-to-UART Bridge
 
@@ -25,12 +26,15 @@ When using a CP2104 USB-to-UART Bridge:
 
 **NOTE: on the CP2104 the pins above refer to the FTDI pins at the opposite end from the USB connector
 
+---
 ## ROS Node Parameters
 
-In order to configuration, please adjust the [node parameter file](bno055/params/bno055_params.yaml) and pass it
-as parameter when starting the node:
+To configure with your own settings please adjust the [node parameter file](bno055/params/bno055_params.yaml) and pass it
+as an argument when starting the node:
 
-    ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
+```
+ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
+```
 
 ### UART Connection
 
@@ -52,6 +56,7 @@ See Bosch BNO055 datasheet section "Axis Remap" for valid positions: "P0", "P1" 
 
 - **ros_topic_prefix**: ROS topic prefix to be used. Will be prepended to the default topic names (see below). Default="bno055/"
 
+---
 ## ROS Topics
 
 ROS topics published by this ROS2 Node: 
@@ -64,7 +69,9 @@ ROS topics published by this ROS2 Node:
   Sensor Calibration Status as JSON string - e.g. `{"sys": 3, "gyro": 3, "accel": 0, "mag": 3}`
   
   
-while _bno055_ is the default ROS topic prefix and can be configured.
+While _bno055_ is the default ROS topic prefix, it can be configured by following the directions above.
+
+---
   
 ## Development Workspace Setup
 
