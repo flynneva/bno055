@@ -1,20 +1,28 @@
+from setuptools import find_packages
 from setuptools import setup
- 
+
 package_name = 'bno055'
- 
+
 setup(
     name=package_name,
-    version='0.0.0',
-    packages=[],
+    version='0.1.0',
+    # find sub-packages automatically in order to allow sub-modules, etc. to be imported:
+    # packages=[package_name],
+    packages=find_packages(exclude=['test']),
     py_modules=[
-        package_name,
+        package_name + '.bno055',
+    ],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+         ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
     author='flynneva',
-    author_email="evanflynn.msu@gmail.com",
+    author_email='evanflynn.msu@gmail.com',
     maintainer='flynneva',
-    maintainer_email="evanflynn.msu@gmail.com",
+    maintainer_email='evanflynn.msu@gmail.com',
     keywords=['ROS', 'ROS2'],
     classifiers=[
         'Intended Audience :: Developers',
@@ -27,7 +35,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'bno055 = bno055:main',
+            'bno055 = bno055.bno055:main',
         ],
     },
 )
