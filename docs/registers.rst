@@ -1,5 +1,5 @@
-bno055
+registers
 ====================================
 
-.. automodule:: bno055
+.. automodule:: bno055.registers
     :members:

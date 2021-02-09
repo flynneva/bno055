@@ -1,5 +1,5 @@
-bno055
+sensor
 ====================================
 
-.. automodule:: bno055
+.. automodule:: bno055.sensor
     :members:

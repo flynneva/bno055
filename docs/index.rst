@@ -15,7 +15,7 @@ Welcome
    error_handling
    params
    sensor
-   register 
+   registers 
 
 Indices and tables
 ==================

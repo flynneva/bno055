@@ -1,5 +1,5 @@
-bno055
+params
 ====================================
 
-.. automodule:: bno055
+.. automodule:: bno055.params
     :members:
