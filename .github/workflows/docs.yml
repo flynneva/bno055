@@ -1,0 +1,32 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  generate_docs:
+    runs-on: [ubuntu-latest]
+    steps:
+    - name: setup directories
+      run: mkdir -p ~/ros_ws/src/bno055
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        path: ~/ros_ws/src/bno055
+    - name: setup ROS environment
+      uses: flynneva/setup-ros@master
+      with:
+        use-ros2-testing: true
+        required-ros-distributions: rolling
+    - name: build documentation
+      uses: ammaraskar/sphinx-action@master
+      with:
+        docs-folder: "~/ros_ws/src/bno055/docs/"
+        pre-build-command: "apt-get update -y && pip3 install -r ~/ros_ws/src/bno055/requirements.txt && pip3 install sphinxcontrib-napoleon"
+        build-command: '"source /opt/ros/rolling/setup.bash" && "make html"'
+    - name: deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ~/ros_ws/src/docs/_build/html/
