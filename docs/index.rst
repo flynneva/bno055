@@ -6,6 +6,8 @@
 Welcome
 ==================================
 
+A ROS2 driver for the sensor IMU Bosch BNO055.
+
 .. toctree::
    :maxdepth: 4
    :caption: Contents:
