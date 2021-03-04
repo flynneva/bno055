@@ -25,9 +25,8 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-
 import json
+from math import sqrt
 import struct
 import sys
 from time import time
@@ -36,6 +35,7 @@ from bno055 import registers
 from bno055.connectors.Connector import Connector
 from bno055.params.NodeParameters import NodeParameters
 
+from geometry_msgs.msg import Quaternion
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from sensor_msgs.msg import Imu, MagneticField, Temperature
@@ -160,11 +160,21 @@ class SensorService:
         # Publish filtered data
         # imu_msg.header.stamp = node.get_clock().now()
         imu_msg.header.frame_id = self.param.frame_id.value
+
+        q = Quaternion()
         # imu_msg.header.seq = seq
-        imu_msg.orientation.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
-        imu_msg.orientation.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
-        imu_msg.orientation.y = float(struct.unpack('h', struct.pack('BB', buf[28], buf[29]))[0])
-        imu_msg.orientation.z = float(struct.unpack('h', struct.pack('BB', buf[30], buf[31]))[0])
+        q.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
+        q.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
+        q.y = float(struct.unpack('h', struct.pack('BB', buf[28], buf[29]))[0])
+        q.z = float(struct.unpack('h', struct.pack('BB', buf[30], buf[31]))[0])
+        # TODO(flynneva): replace with standard normalize() function
+        # normalize
+        norm = sqrt(q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w)
+        imu_msg.orientation.x = q.x / norm
+        imu_msg.orientation.y = q.y / norm
+        imu_msg.orientation.z = q.z / norm
+        imu_msg.orientation.w = q.w / norm
+
         imu_msg.linear_acceleration.x = float(
             struct.unpack('h', struct.pack('BB', buf[32], buf[33]))[0]) / acc_fact
         imu_msg.linear_acceleration.y = float(
