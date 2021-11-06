@@ -29,4 +29,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ~/ros_ws/src/docs/html/
+        publish_dir: ~/ros_ws/src/bno055/docs/html/
