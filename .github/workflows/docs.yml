@@ -6,7 +6,9 @@ on:
       - main
 jobs:
   generate_docs:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:focal
     steps:
     - name: setup directories
       run: mkdir -p ~/ros_ws/src/bno055
@@ -15,8 +17,9 @@ jobs:
       with:
         path: ~/ros_ws/src/bno055
     - name: setup ROS environment
-      uses: flynneva/setup-ros@master
+      uses: flynneva/setup-ros@v0.2
       with:
+        install-connext: false
         required-ros-distributions: galactic
     - name: build documentation
       uses: ammaraskar/sphinx-action@master
