@@ -1,5 +1,5 @@
 sensor
 ====================================
 
-.. automodule:: bno055.sensor
+.. automodule:: bno055.sensor.SensorService
     :members:

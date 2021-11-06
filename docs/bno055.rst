@@ -3,5 +3,5 @@ bno055
 
 TEST
 
-.. automodule:: bno055
+.. automodule:: bno055.bno055
     :members:

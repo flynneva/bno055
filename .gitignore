@@ -2,4 +2,4 @@
 /bno055.iml
 /venv
 .vscode/
-docs/_build
+docs/html
