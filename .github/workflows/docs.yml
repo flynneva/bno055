@@ -23,7 +23,7 @@ jobs:
         cd ros_ws/src/bno055/docs/
         apt-get update -y
         pip3 install sphinx sphinxcontrib-napoleon pyserial
-        . /opt/ros/galactic/setup.bash
+        . /opt/ros/galactic/setup.sh
         sphinx-build -b html . ./html/
     - name: deploy
       uses: peaceiris/actions-gh-pages@v3
