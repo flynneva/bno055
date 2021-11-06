@@ -17,7 +17,7 @@ jobs:
       with:
         path: ~/ros_ws/src/bno055
     - name: setup ROS environment
-      uses: flynneva/setup-ros@0.2
+      uses: ros-tooling/setup-ros@master
       with:
         install-connext: false
         required-ros-distributions: galactic
