@@ -17,8 +17,7 @@ jobs:
     - name: setup ROS environment
       uses: flynneva/setup-ros@master
       with:
-        use-ros2-testing: true
-        required-ros-distributions: rolling
+        required-ros-distributions: galactic
     - name: build documentation
       uses: ammaraskar/sphinx-action@master
       with:
