@@ -19,6 +19,7 @@ jobs:
         path: ~/ros_ws/src/bno055
     - name: build documentation
       run: |
+        ls
         cd ~/ros_ws/src/bno055/docs/
         apt-get update -y
         pip3 install -r sphinx sphinxcontrib-napoleon pyserial
