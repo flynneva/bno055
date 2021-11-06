@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bno055.sensor.SensorService &#8212; bno055 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bno055.sensor.SensorService</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2021 AUTHORS</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#      documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Neither the name of the AUTHORS nor the names of its</span>
+<span class="c1">#      contributors may be used to endorse or promote products derived from</span>
+<span class="c1">#      this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">sqrt</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+
+<span class="kn">from</span> <span class="nn">bno055</span> <span class="k">import</span> <span class="n">registers</span>
+<span class="kn">from</span> <span class="nn">bno055.connectors.Connector</span> <span class="k">import</span> <span class="n">Connector</span>
+<span class="kn">from</span> <span class="nn">bno055.params.NodeParameters</span> <span class="k">import</span> <span class="n">NodeParameters</span>
+
+<span class="kn">from</span> <span class="nn">geometry_msgs.msg</span> <span class="k">import</span> <span class="n">Quaternion</span>
+<span class="kn">from</span> <span class="nn">rclpy.node</span> <span class="k">import</span> <span class="n">Node</span>
+<span class="kn">from</span> <span class="nn">rclpy.qos</span> <span class="k">import</span> <span class="n">QoSProfile</span>
+<span class="kn">from</span> <span class="nn">sensor_msgs.msg</span> <span class="k">import</span> <span class="n">Imu</span><span class="p">,</span> <span class="n">MagneticField</span><span class="p">,</span> <span class="n">Temperature</span>
+<span class="kn">from</span> <span class="nn">std_msgs.msg</span> <span class="k">import</span> <span class="n">String</span>
+
+
+<div class="viewcode-block" id="SensorService"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService">[docs]</a><span class="k">class</span> <span class="nc">SensorService</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Provide an interface for accessing the sensor&#39;s features &amp; data.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">connector</span><span class="p">:</span> <span class="n">Connector</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">NodeParameters</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">con</span> <span class="o">=</span> <span class="n">connector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
+
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">ros_topic_prefix</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">QoSProf</span> <span class="o">=</span> <span class="n">QoSProfile</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># create topic publishers:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_imu_raw</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span><span class="n">Imu</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;imu_raw&#39;</span><span class="p">,</span> <span class="n">QoSProf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_imu</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span><span class="n">Imu</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;imu&#39;</span><span class="p">,</span> <span class="n">QoSProf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_mag</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span><span class="n">MagneticField</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;mag&#39;</span><span class="p">,</span> <span class="n">QoSProf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_temp</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span><span class="n">Temperature</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;temp&#39;</span><span class="p">,</span> <span class="n">QoSProf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_calib_status</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">create_publisher</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;calib_status&#39;</span><span class="p">,</span> <span class="n">QoSProf</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SensorService.configure"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Configure the IMU sensor hardware.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Configuring device...&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_CHIP_ID_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">registers</span><span class="o">.</span><span class="n">BNO055_ID</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s1">&#39;Device ID=</span><span class="si">%s</span><span class="s1"> is incorrect&#39;</span> <span class="o">%</span> <span class="n">data</span><span class="p">)</span>
+            <span class="c1"># print(&quot;device sent &quot;, binascii.hexlify(data))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: B902</span>
+            <span class="c1"># This is the first communication - exit if it does not work</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Communication error: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Shutting down ROS node...&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># IMU connected =&gt; apply IMU Configuration:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_OPR_MODE_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">registers</span><span class="o">.</span><span class="n">OPERATION_MODE_CONFIG</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU into config mode.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_PWR_MODE_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">registers</span><span class="o">.</span><span class="n">POWER_MODE_NORMAL</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU normal power mode.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_PAGE_ID_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x00</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU register page 0.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_SYS_TRIGGER_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x00</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to start IMU.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_UNIT_SEL_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x83</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU units.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># The sensor placement configuration (Axis remapping) defines the</span>
+        <span class="c1"># position and orientation of the sensor mount.</span>
+        <span class="c1"># See also Bosch BNO055 datasheet section Axis Remap</span>
+        <span class="n">mount_positions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;P0&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x21\x04</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P1&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x24\x00</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P2&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x24\x06</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P3&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x21\x02</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P4&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x24\x03</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P5&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x21\x02</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P6&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x21\x07</span><span class="s1">&#39;</span><span class="p">),</span>
+            <span class="s1">&#39;P7&#39;</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x24\x05</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_AXIS_MAP_CONFIG_ADDR</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+                <span class="n">mount_positions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">placement_axis_remap</span><span class="o">.</span><span class="n">value</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set sensor placement configuration.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Set Device to NDOF mode</span>
+        <span class="c1"># data fusion for gyroscope, acceleration sensor and magnetometer enabled</span>
+        <span class="c1"># absolute orientation</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_OPR_MODE_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">registers</span><span class="o">.</span><span class="n">OPERATION_MODE_NDOF</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU operation mode into operation mode.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Bosch BNO055 IMU configuration complete.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SensorService.get_sensor_data"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService.get_sensor_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_sensor_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read IMU data from the sensor, parse and publish.&quot;&quot;&quot;</span>
+        <span class="c1"># Initialize ROS msgs</span>
+        <span class="n">imu_raw_msg</span> <span class="o">=</span> <span class="n">Imu</span><span class="p">()</span>
+        <span class="n">imu_msg</span> <span class="o">=</span> <span class="n">Imu</span><span class="p">()</span>
+        <span class="n">mag_msg</span> <span class="o">=</span> <span class="n">MagneticField</span><span class="p">()</span>
+        <span class="n">temp_msg</span> <span class="o">=</span> <span class="n">Temperature</span><span class="p">()</span>
+
+        <span class="c1"># Initialize constants</span>
+        <span class="n">acc_fact</span> <span class="o">=</span> <span class="mf">1000.0</span>
+        <span class="n">mag_fact</span> <span class="o">=</span> <span class="mf">16.0</span>
+        <span class="n">gyr_fact</span> <span class="o">=</span> <span class="mf">900.0</span>
+
+        <span class="c1"># read from sensor</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_ACCEL_DATA_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">45</span><span class="p">)</span>
+        <span class="c1"># Publish raw data</span>
+        <span class="c1"># TODO: convert rcl Clock time to ros time?</span>
+        <span class="c1"># imu_raw_msg.header.stamp = node.get_clock().now()</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">frame_id</span><span class="o">.</span><span class="n">value</span>
+        <span class="c1"># TODO: do headers need sequence counters now?</span>
+        <span class="c1"># imu_raw_msg.header.seq = seq</span>
+
+        <span class="c1"># TODO: make this an option to publish?</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">orientation_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">3</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">5</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">linear_acceleration_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">13</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">15</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">17</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_raw_msg</span><span class="o">.</span><span class="n">angular_velocity_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># node.get_logger().info(&#39;Publishing imu message&#39;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_imu_raw</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">imu_raw_msg</span><span class="p">)</span>
+
+        <span class="c1"># TODO: make this an option to publish?</span>
+        <span class="c1"># Publish filtered data</span>
+        <span class="c1"># imu_msg.header.stamp = node.get_clock().now()</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">frame_id</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">q</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="p">()</span>
+        <span class="c1"># imu_msg.header.seq = seq</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">24</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">25</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">26</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">27</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">29</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">q</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">30</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">31</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># TODO(flynneva): replace with standard normalize() function</span>
+        <span class="c1"># normalize</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">x</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">y</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">z</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">z</span> <span class="o">+</span> <span class="n">q</span><span class="o">.</span><span class="n">w</span><span class="o">*</span><span class="n">q</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">x</span> <span class="o">/</span> <span class="n">norm</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">y</span> <span class="o">/</span> <span class="n">norm</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">z</span> <span class="o">/</span> <span class="n">norm</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">w</span> <span class="o">/</span> <span class="n">norm</span>
+
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">32</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">33</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">34</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">35</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">linear_acceleration</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">36</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">37</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">acc_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">linear_acceleration_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">13</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">15</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">angular_velocity</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">16</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">17</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">gyr_fact</span>
+        <span class="n">imu_msg</span><span class="o">.</span><span class="n">angular_velocity_covariance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_imu</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">imu_msg</span><span class="p">)</span>
+
+        <span class="c1"># Publish magnetometer data</span>
+        <span class="c1"># mag_msg.header.stamp = node.get_clock().now()</span>
+        <span class="n">mag_msg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">frame_id</span><span class="o">.</span><span class="n">value</span>
+        <span class="c1"># mag_msg.header.seq = seq</span>
+        <span class="n">mag_msg</span><span class="o">.</span><span class="n">magnetic_field</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">7</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">mag_fact</span>
+        <span class="n">mag_msg</span><span class="o">.</span><span class="n">magnetic_field</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">9</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">mag_fact</span>
+        <span class="n">mag_msg</span><span class="o">.</span><span class="n">magnetic_field</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">buf</span><span class="p">[</span><span class="mi">11</span><span class="p">]))[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">mag_fact</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_mag</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">mag_msg</span><span class="p">)</span>
+
+        <span class="c1"># Publish temperature</span>
+        <span class="c1"># temp_msg.header.stamp = node.get_clock().now()</span>
+        <span class="n">temp_msg</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">frame_id</span><span class="o">.</span><span class="n">value</span>
+        <span class="c1"># temp_msg.header.seq = seq</span>
+        <span class="n">temp_msg</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">44</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_temp</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">temp_msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SensorService.get_calib_status"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService.get_calib_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_calib_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read calibration status for sys/gyro/acc/mag.</span>
+
+<span class="sd">        Quality scale: 0 = bad, 3 = best</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">calib_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_CALIB_STAT_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="p">(</span><span class="n">calib_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x03</span>
+        <span class="n">gyro</span> <span class="o">=</span> <span class="p">(</span><span class="n">calib_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x03</span>
+        <span class="n">accel</span> <span class="o">=</span> <span class="p">(</span><span class="n">calib_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0x03</span>
+        <span class="n">mag</span> <span class="o">=</span> <span class="n">calib_status</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0x03</span>
+
+        <span class="c1"># Create dictionary (map) and convert it to JSON string:</span>
+        <span class="n">calib_status_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sys&#39;</span><span class="p">:</span> <span class="n">sys</span><span class="p">,</span> <span class="s1">&#39;gyro&#39;</span><span class="p">:</span> <span class="n">gyro</span><span class="p">,</span> <span class="s1">&#39;accel&#39;</span><span class="p">:</span> <span class="n">accel</span><span class="p">,</span> <span class="s1">&#39;mag&#39;</span><span class="p">:</span> <span class="n">mag</span><span class="p">}</span>
+        <span class="n">calib_status_str</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
+        <span class="n">calib_status_str</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">calib_status_dict</span><span class="p">)</span>
+
+        <span class="c1"># Publish via ROS topic:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pub_calib_status</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">calib_status_str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SensorService.get_calib_offsets"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService.get_calib_offsets">[docs]</a>    <span class="k">def</span> <span class="nf">get_calib_offsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read all calibration offsets and print to screen.&quot;&quot;&quot;</span>
+        <span class="n">accel_offset_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">accel_offset_read_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">accel_offset_read</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">accel_offset_read</span><span class="p">[</span>
+            <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">accel_offset_read_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">accel_offset_read</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">accel_offset_read</span><span class="p">[</span>
+            <span class="mi">2</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">accel_offset_read_z</span> <span class="o">=</span> <span class="p">(</span><span class="n">accel_offset_read</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">accel_offset_read</span><span class="p">[</span>
+            <span class="mi">4</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+
+        <span class="n">mag_offset_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">mag_offset_read_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">mag_offset_read</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">mag_offset_read</span><span class="p">[</span>
+            <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">mag_offset_read_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">mag_offset_read</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">mag_offset_read</span><span class="p">[</span>
+            <span class="mi">2</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">mag_offset_read_z</span> <span class="o">=</span> <span class="p">(</span><span class="n">mag_offset_read</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">mag_offset_read</span><span class="p">[</span>
+            <span class="mi">4</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+
+        <span class="n">gyro_offset_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">receive</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="n">gyro_offset_read_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">gyro_offset_read</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">gyro_offset_read</span><span class="p">[</span>
+            <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">gyro_offset_read_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">gyro_offset_read</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">gyro_offset_read</span><span class="p">[</span>
+            <span class="mi">2</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+        <span class="n">gyro_offset_read_z</span> <span class="o">=</span> <span class="p">(</span><span class="n">gyro_offset_read</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">gyro_offset_read</span><span class="p">[</span>
+            <span class="mi">4</span><span class="p">]</span>  <span class="c1"># Combine MSB and LSB registers into one decimal</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Accel offsets (x y z): </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">accel_offset_read_x</span><span class="p">,</span>
+                <span class="n">accel_offset_read_y</span><span class="p">,</span>
+                <span class="n">accel_offset_read_z</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Mag offsets (x y z): </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">mag_offset_read_x</span><span class="p">,</span>
+                <span class="n">mag_offset_read_y</span><span class="p">,</span>
+                <span class="n">mag_offset_read_z</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Gyro offsets (x y z): </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">gyro_offset_read_x</span><span class="p">,</span>
+                <span class="n">gyro_offset_read_y</span><span class="p">,</span>
+                <span class="n">gyro_offset_read_z</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SensorService.set_calib_offsets"><a class="viewcode-back" href="../../../sensor.html#bno055.sensor.SensorService.SensorService.set_calib_offsets">[docs]</a>    <span class="k">def</span> <span class="nf">set_calib_offsets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acc_offset</span><span class="p">,</span> <span class="n">mag_offset</span><span class="p">,</span> <span class="n">gyr_offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write calibration data (define as 16 bit signed hex).</span>
+
+<span class="sd">        :param acc_offset:</span>
+<span class="sd">        :param mag_offset:</span>
+<span class="sd">        :param gyr_offset:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Must switch to config mode to write out</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">BNO055_OPR_MODE_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">registers</span><span class="o">.</span><span class="n">OPERATION_MODE_CONFIG</span><span class="p">]))):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Unable to set IMU into config mode&#39;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.025</span><span class="p">)</span>
+
+        <span class="c1"># Seems to only work when writing 1 register at a time</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_X_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_Y_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_Y_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_Z_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">ACCEL_OFFSET_Z_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">acc_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_X_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_Y_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_Y_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_Z_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">MAG_OFFSET_Z_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">mag_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_X_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_X_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_Y_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_Y_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_Z_LSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">transmit</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">GYRO_OFFSET_Z_MSB_ADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">([(</span><span class="n">gyr_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: B902</span>
+            <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bno055</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bno055.html">bno055</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connectors.html">connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../params.html">params</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensor.html">sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../registers.html">registers</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Evan Flynn, Manfred Novotny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

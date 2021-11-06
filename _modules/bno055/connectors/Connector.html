@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bno055.connectors.Connector &#8212; bno055 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bno055.connectors.Connector</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright 2021 AUTHORS</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions are met:</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions in binary form must reproduce the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer in the</span>
+<span class="c1">#      documentation and/or other materials provided with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Neither the name of the AUTHORS nor the names of its</span>
+<span class="c1">#      contributors may be used to endorse or promote products derived from</span>
+<span class="c1">#      this software without specific prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;</span>
+<span class="c1"># AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE</span>
+<span class="c1"># IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE</span>
+<span class="c1"># ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE</span>
+<span class="c1"># LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR</span>
+<span class="c1"># CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF</span>
+<span class="c1"># SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS</span>
+<span class="c1"># INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN</span>
+<span class="c1"># CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)</span>
+<span class="c1"># ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+
+
+<span class="kn">from</span> <span class="nn">bno055</span> <span class="k">import</span> <span class="n">registers</span>
+<span class="kn">from</span> <span class="nn">bno055.error_handling.exceptions</span> <span class="k">import</span> <span class="n">BusOverRunException</span><span class="p">,</span> <span class="n">TransmissionException</span>
+<span class="kn">from</span> <span class="nn">rclpy.node</span> <span class="k">import</span> <span class="n">Node</span>
+
+
+<div class="viewcode-block" id="Connector"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.Connector.Connector">[docs]</a><span class="k">class</span> <span class="nc">Connector</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parent class for bno055 connectors.</span>
+
+<span class="sd">    This class does NOT contain protocol-specific code for UART, I2C, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+
+<div class="viewcode-block" id="Connector.receive"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.Connector.Connector.receive">[docs]</a>    <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_addr</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Receives data packages of requested length from the sensor.</span>
+
+<span class="sd">        :param reg_addr: The register address</span>
+<span class="sd">        :param length: The length of the data package to receive</span>
+<span class="sd">        :return: The received payload message</span>
+<span class="sd">        :raises TransmissionException in case of any error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_WR</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">READ</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reg_addr</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf_out</span><span class="p">)</span>
+            <span class="n">buf_in</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">length</span><span class="p">))</span>
+            <span class="c1"># print(&quot;Reading, wr: &quot;, binascii.hexlify(buf_out), &quot;  re: &quot;, binascii.hexlify(buf_in))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># noqa: B902</span>
+            <span class="c1"># re-raise as IOError</span>
+            <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Transmission error: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="c1"># Check for valid response length (the smallest (error) message has at least 2 bytes):</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Unexpected length of READ-request response: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                        <span class="o">%</span> <span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">())</span>
+
+        <span class="c1"># Check for READ result (success or failure):</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_ERROR_RESP</span><span class="p">:</span>
+            <span class="c1"># Error 0x07 (BUS_OVER_RUN_ERROR) can be &quot;normal&quot; if data fusion is not yet ready</span>
+            <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+                <span class="c1"># see #5</span>
+                <span class="k">raise</span> <span class="n">BusOverRunException</span><span class="p">(</span><span class="s1">&#39;Data fusion not ready, resend read request&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;READ-request failed with error code </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                            <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="c1"># Check for correct READ response header:</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_RESP</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Wrong READ-request response header </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">!=</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Payload length mismatch detected: &#39;</span>
+                                        <span class="o">+</span> <span class="s1">&#39;  received=</span><span class="si">%s</span><span class="s1">, awaited=</span><span class="si">%s</span><span class="s1">&#39;</span>
+                                        <span class="o">%</span> <span class="p">(</span><span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="c1"># Check for correct READ-request response length</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">length</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Incorrect READ-request response length: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                        <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="n">length</span><span class="p">))</span>
+
+        <span class="c1"># remove the 0xBB:</span>
+        <span class="n">buf_in</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># remove the length information:</span>
+        <span class="n">buf_in</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Return the received payload:</span>
+        <span class="k">return</span> <span class="n">buf_in</span></div>
+
+    <span class="c1"># -----------------------------</span>
+<div class="viewcode-block" id="Connector.transmit"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.Connector.Connector.transmit">[docs]</a>    <span class="k">def</span> <span class="nf">transmit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_addr</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transmit data packages to the sensor.</span>
+
+<span class="sd">        :param reg_addr: The register address</span>
+<span class="sd">        :param length: The data length</span>
+<span class="sd">        :param data: data to transmit</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_WR</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">WRITE</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reg_addr</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="c1"># Append payload data to the written:</span>
+        <span class="n">buf_out</span> <span class="o">+=</span> <span class="n">data</span>
+
+        <span class="c1"># print(&quot;Writing: &quot;, binascii.hexlify(buf_out))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf_out</span><span class="p">)</span>
+            <span class="n">buf_in</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+            <span class="c1"># print(&quot;Writing, wr: &quot;, binascii.hexlify(buf_out), &quot;  re: &quot;, binascii.hexlify(buf_in))</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: B902</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mh">0x01</span><span class="p">):</span>
+            <span class="c1"># rospy.logerr(&quot;Incorrect Bosh IMU device response.&quot;)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bno055</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bno055.html">bno055</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connectors.html">connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../params.html">params</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensor.html">sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../registers.html">registers</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Evan Flynn, Manfred Novotny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

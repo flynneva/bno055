@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sensor &#8212; bno055 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="registers" href="registers.html" />
+    <link rel="prev" title="params" href="params.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bno055.sensor.SensorService">
+<span id="sensor"></span><h1>sensor<a class="headerlink" href="#module-bno055.sensor.SensorService" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bno055.sensor.SensorService.</span></span><span class="sig-name descname"><span class="pre">SensorService</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rclpy.node.Node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connector</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="connectors.html#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><span class="pre">bno055.connectors.Connector.Connector</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="params.html#bno055.params.NodeParameters.NodeParameters" title="bno055.params.NodeParameters.NodeParameters"><span class="pre">bno055.params.NodeParameters.NodeParameters</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide an interface for accessing the sensor’s features &amp; data.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService.configure">
+<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService.configure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the IMU sensor hardware.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService.get_calib_offsets">
+<span class="sig-name descname"><span class="pre">get_calib_offsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService.get_calib_offsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService.get_calib_offsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read all calibration offsets and print to screen.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService.get_calib_status">
+<span class="sig-name descname"><span class="pre">get_calib_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService.get_calib_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService.get_calib_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read calibration status for sys/gyro/acc/mag.</p>
+<p>Quality scale: 0 = bad, 3 = best</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService.get_sensor_data">
+<span class="sig-name descname"><span class="pre">get_sensor_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService.get_sensor_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService.get_sensor_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read IMU data from the sensor, parse and publish.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.sensor.SensorService.SensorService.set_calib_offsets">
+<span class="sig-name descname"><span class="pre">set_calib_offsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acc_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gyr_offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/sensor/SensorService.html#SensorService.set_calib_offsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.sensor.SensorService.SensorService.set_calib_offsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write calibration data (define as 16 bit signed hex).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acc_offset</strong> – </p></li>
+<li><p><strong>mag_offset</strong> – </p></li>
+<li><p><strong>gyr_offset</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bno055</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bno055.html">bno055</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connectors.html">connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">params</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">sensor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="registers.html">registers</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="params.html" title="previous chapter">params</a></li>
+      <li>Next: <a href="registers.html" title="next chapter">registers</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Evan Flynn, Manfred Novotny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/sensor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

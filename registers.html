@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>registers &#8212; bno055 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="sensor" href="sensor.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bno055.registers">
+<span id="registers"></span><h1>registers<a class="headerlink" href="#module-bno055.registers" title="Permalink to this headline">¶</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.ACCEL_OFFSET_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">ACCEL_OFFSET_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">85</span></em><a class="headerlink" href="#bno055.registers.ACCEL_OFFSET_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accelerometer Offset registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.ACCEL_RADIUS_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">ACCEL_RADIUS_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">103</span></em><a class="headerlink" href="#bno055.registers.ACCEL_RADIUS_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Radius registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.ACC_OFFSET_DEFAULT">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">ACC_OFFSET_DEFAULT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[65516,</span> <span class="pre">165,</span> <span class="pre">65512]</span></em><a class="headerlink" href="#bno055.registers.ACC_OFFSET_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>+/- 2000 units (at max 2G)    (1 unit = 1 mg = 1 LSB = 0.01 m/s2)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.AXIS_REMAP_X">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">AXIS_REMAP_X</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#bno055.registers.AXIS_REMAP_X" title="Permalink to this definition">¶</a></dt>
+<dd><p>Axis remap values</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_ACCEL_DATA_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_ACCEL_DATA_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">8</span></em><a class="headerlink" href="#bno055.registers.BNO055_ACCEL_DATA_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Accel data register</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_ADDRESS_A">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_ADDRESS_A</span></span><em class="property"> <span class="pre">=</span> <span class="pre">40</span></em><a class="headerlink" href="#bno055.registers.BNO055_ADDRESS_A" title="Permalink to this definition">¶</a></dt>
+<dd><p>I2C addresses</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_AXIS_MAP_CONFIG_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_AXIS_MAP_CONFIG_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">65</span></em><a class="headerlink" href="#bno055.registers.BNO055_AXIS_MAP_CONFIG_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Axis remap registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_CALIB_STAT_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_CALIB_STAT_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">53</span></em><a class="headerlink" href="#bno055.registers.BNO055_CALIB_STAT_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Status registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_CHIP_ID_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_CHIP_ID_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#bno055.registers.BNO055_CHIP_ID_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>PAGE0 REGISTER DEFINITION START</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_EULER_H_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_EULER_H_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">26</span></em><a class="headerlink" href="#bno055.registers.BNO055_EULER_H_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Euler data registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_GRAVITY_DATA_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_GRAVITY_DATA_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">46</span></em><a class="headerlink" href="#bno055.registers.BNO055_GRAVITY_DATA_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gravity data registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_GYRO_DATA_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_GYRO_DATA_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">20</span></em><a class="headerlink" href="#bno055.registers.BNO055_GYRO_DATA_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gyro data registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">40</span></em><a class="headerlink" href="#bno055.registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear acceleration data registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_MAG_DATA_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_MAG_DATA_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">14</span></em><a class="headerlink" href="#bno055.registers.BNO055_MAG_DATA_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mag data register</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_OPR_MODE_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_OPR_MODE_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">61</span></em><a class="headerlink" href="#bno055.registers.BNO055_OPR_MODE_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mode registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_PAGE_ID_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_PAGE_ID_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">7</span></em><a class="headerlink" href="#bno055.registers.BNO055_PAGE_ID_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Page id register definition</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_QUATERNION_DATA_W_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_QUATERNION_DATA_W_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">32</span></em><a class="headerlink" href="#bno055.registers.BNO055_QUATERNION_DATA_W_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quaternion data registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_SIC_MATRIX_0_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_SIC_MATRIX_0_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">67</span></em><a class="headerlink" href="#bno055.registers.BNO055_SIC_MATRIX_0_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>SIC registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_TEMP_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_TEMP_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">52</span></em><a class="headerlink" href="#bno055.registers.BNO055_TEMP_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temperature data register</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.BNO055_UNIT_SEL_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">BNO055_UNIT_SEL_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">59</span></em><a class="headerlink" href="#bno055.registers.BNO055_UNIT_SEL_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unit selection register</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.GYRO_OFFSET_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">GYRO_OFFSET_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">97</span></em><a class="headerlink" href="#bno055.registers.GYRO_OFFSET_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gyroscope Offset register s</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.GYR_OFFSET_DEFAULT">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">GYR_OFFSET_DEFAULT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[2,</span> <span class="pre">65535,</span> <span class="pre">65535]</span></em><a class="headerlink" href="#bno055.registers.GYR_OFFSET_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>+/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.MAG_OFFSET_DEFAULT">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">MAG_OFFSET_DEFAULT</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[65460,</span> <span class="pre">65182,</span> <span class="pre">637]</span></em><a class="headerlink" href="#bno055.registers.MAG_OFFSET_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>+/- 6400 units                (1 unit = 1/16 uT)</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.MAG_OFFSET_X_LSB_ADDR">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">MAG_OFFSET_X_LSB_ADDR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">91</span></em><a class="headerlink" href="#bno055.registers.MAG_OFFSET_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Magnetometer Offset registers</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.OPERATION_MODE_CONFIG">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">OPERATION_MODE_CONFIG</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#bno055.registers.OPERATION_MODE_CONFIG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Operation mode settings</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bno055.registers.POWER_MODE_NORMAL">
+<span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">POWER_MODE_NORMAL</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#bno055.registers.POWER_MODE_NORMAL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Power modes</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bno055</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="bno055.html">bno055</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connectors.html">connectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="params.html">params</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensor.html">sensor</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">registers</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="sensor.html" title="previous chapter">sensor</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Evan Flynn, Manfred Novotny.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/registers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
