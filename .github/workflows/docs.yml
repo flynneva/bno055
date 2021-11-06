@@ -22,7 +22,7 @@ jobs:
         ls
         cd ros_ws/src/bno055/docs/
         apt-get update -y
-        pip3 install -r sphinx sphinxcontrib-napoleon pyserial
+        pip3 install sphinx sphinxcontrib-napoleon pyserial
         source /opt/ros/galactic/setup.bash
         sphinx-build -b html . ./html/
     - name: deploy
