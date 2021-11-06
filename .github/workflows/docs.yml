@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
+      - develop
 jobs:
   generate_docs:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:focal
+      image: rostooling/setup-ros-docker:ubuntu-focal-ros-galactic-ros-base-latest
     steps:
     - name: setup directories
       run: mkdir -p ~/ros_ws/src/bno055
@@ -16,17 +17,13 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: ~/ros_ws/src/bno055
-    - name: setup ROS environment
-      uses: ros-tooling/setup-ros@master
-      with:
-        install-connext: false
-        required-ros-distributions: galactic
     - name: build documentation
-      uses: ammaraskar/sphinx-action@master
-      with:
-        docs-folder: "~/ros_ws/src/bno055/docs/"
-        pre-build-command: "apt-get update -y && pip3 install -r ~/ros_ws/src/bno055/requirements.txt && pip3 install sphinxcontrib-napoleon"
-        build-command: '"source /opt/ros/galactic/setup.bash" && "sphinx-build -b html . ./html/"'
+      run: |
+        cd ~/ros_ws/src/bno055/docs/
+        apt-get update -y
+        pip3 install -r sphinx sphinxcontrib-napoleon pyserial
+        source /opt/ros/galactic/setup.bash
+        sphinx-build -b html . ./html/
     - name: deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
