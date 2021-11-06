@@ -26,7 +26,7 @@ jobs:
       with:
         docs-folder: "~/ros_ws/src/bno055/docs/"
         pre-build-command: "apt-get update -y && pip3 install -r ~/ros_ws/src/bno055/requirements.txt && pip3 install sphinxcontrib-napoleon"
-        build-command: '"source /opt/ros/rolling/setup.bash" && "sphinx-build -b html . ./html/"'
+        build-command: '"source /opt/ros/galactic/setup.bash" && "sphinx-build -b html . ./html/"'
     - name: deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
