@@ -12,15 +12,15 @@ jobs:
       image: rostooling/setup-ros-docker:ubuntu-focal-ros-galactic-ros-base-latest
     steps:
     - name: setup directories
-      run: mkdir -p ~/ros_ws/src/bno055
+      run: mkdir -p /__w/bno055/ros_ws/src/bno055
     - name: checkout
       uses: actions/checkout@v2
       with:
-        path: ~/ros_ws/src/bno055
+        path: /__w/bno055/ros_ws/src/bno055
     - name: build documentation
       run: |
         ls
-        cd ~/ros_ws/src/bno055/docs/
+        cd /__w/bno055/ros_ws/src/bno055/docs/
         apt-get update -y
         pip3 install -r sphinx sphinxcontrib-napoleon pyserial
         source /opt/ros/galactic/setup.bash
@@ -29,4 +29,4 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ~/ros_ws/src/bno055/docs/html/
+        publish_dir: /__w/bno055/ros_ws/src/bno055/docs/html/
