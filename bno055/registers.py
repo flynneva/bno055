@@ -229,6 +229,13 @@ OPERATION_MODE_M4G                   = 0X0A
 OPERATION_MODE_NDOF_FMC_OFF          = 0X0B
 OPERATION_MODE_NDOF                  = 0X0C
 
+#: Communication constants
+COM_START_BYTE_WR = 0xAA
+COM_START_BYTE_RESP = 0xBB
+COM_START_BYTE_ERROR_RESP = 0xEE
+COM_READ = 0x01
+COM_WRITE = 0x00
+
 #: Default calibration values (taken from desk test approximation.) [x y z]
 #: Signed hex 16 bit representation
 
