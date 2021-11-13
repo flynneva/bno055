@@ -76,6 +76,8 @@ class NodeParameters:
         node.declare_parameter('mag_factor', value=16000000.0)
         # scaling factor for gyroscope
         node.declare_parameter('gyr_factor', value=900.0)
+        # determines whether to use default offsets or not
+        node.declare_parameter('set_offsets', value=False)
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
         node.declare_parameter('offset_acc', value=registers.DEFAULT_OFFSET_ACC)
         # +/- 6400 units (1 unit = 1/16 uT)
@@ -134,13 +136,16 @@ class NodeParameters:
             self.gyr_factor = node.get_parameter('gyr_factor')
             node.get_logger().info('\tgyr_factor:\t\t"%s"' % self.gyr_factor.value)
 
-            self.acc_offset = node.get_parameter('offset_acc')
+            self.set_offsets = node.get_parameter('set_offsets')
+            node.get_logger().info('\tset_offsets:\t\t"%s"' % self.set_offsets.value)
+
+            self.offset_acc = node.get_parameter('offset_acc')
             node.get_logger().info('\toffset_acc:\t\t"%s"' % self.offset_acc.value)
 
-            self.mag_offset = node.get_parameter('offset_mag')
+            self.offset_mag = node.get_parameter('offset_mag')
             node.get_logger().info('\toffset_mag:\t\t"%s"' % self.offset_mag.value)
 
-            self.gyr_offset = node.get_parameter('offset_gyr')
+            self.offset_gyr = node.get_parameter('offset_gyr')
             node.get_logger().info('\toffset_gyr:\t\t"%s"' % self.offset_gyr.value)
 
             self.use_default_variance = node.get_parameter('use_default_variance')
