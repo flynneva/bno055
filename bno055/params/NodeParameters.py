@@ -85,10 +85,10 @@ class NodeParameters:
         # +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
         node.declare_parameter('offset_gyr', value=registers.DEFAULT_OFFSET_GYR)
         # Sensor standard deviation squared (^2) defaults [x, y, z]
-        node.declare_parameter('use_default_variance', value=True)
         node.declare_parameter('variance_acc', value=registers.DEFAULT_VARIANCE_ACC)
         node.declare_parameter('variance_angular_vel', value=registers.DEFAULT_VARIANCE_ANGULAR_VEL)
         node.declare_parameter('variance_orientation', value=registers.DEFAULT_VARIANCE_ORIENTATION)
+        node.declare_parameter('variance_mag', value=registers.DEFAULT_VARIANCE_MAG)
 
         # get the parameters - requires CLI arguments '--ros-args --params-file <parameter file>'
         node.get_logger().info('Parameters set to:')
@@ -148,15 +148,14 @@ class NodeParameters:
             self.offset_gyr = node.get_parameter('offset_gyr')
             node.get_logger().info('\toffset_gyr:\t\t"%s"' % self.offset_gyr.value)
 
-            self.use_default_variance = node.get_parameter('use_default_variance')
-            node.get_logger().info('\tuse_default_variance:\t\t"%s"' % self.use_default_variance.value)
             self.variance_acc = node.get_parameter('variance_acc')
             node.get_logger().info('\tvariance_acc:\t\t"%s"' % self.variance_acc.value)
             self.variance_angular_vel = node.get_parameter('variance_angular_vel')
             node.get_logger().info('\tvariance_angular_vel:\t\t"%s"' % self.variance_angular_vel.value)
             self.variance_orientation = node.get_parameter('variance_orientation')
             node.get_logger().info('\tvariance_orientation:\t\t"%s"' % self.variance_orientation.value)
-
+            self.variance_mag = node.get_parameter('variance_mag')
+            node.get_logger().info('\tvariance_mag:\t\t"%s"' % self.variance_mag.value)
         except Exception as e:  # noqa: B902
             node.get_logger().warn('Could not get parameters...setting variables to default')
             node.get_logger().warn('Error: "%s"' % e)

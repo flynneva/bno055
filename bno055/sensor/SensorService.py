@@ -223,6 +223,11 @@ class SensorService:
             float(struct.unpack('h', struct.pack('BB', buf[8], buf[9]))[0]) / self.param.mag_factor.value
         mag_msg.magnetic_field.z = \
             float(struct.unpack('h', struct.pack('BB', buf[10], buf[11]))[0]) / self.param.mag_factor.value
+        mag_msg.magnetic_field_covariance = [
+            self.param.variance_mag, 0, 0,
+            0, self.param.variance_mag, 0,
+            0, 0, self.param.variance_mag
+        ]
         self.pub_mag.publish(mag_msg)
 
         # Publish temperature
