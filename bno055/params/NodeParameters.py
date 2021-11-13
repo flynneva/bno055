@@ -151,9 +151,9 @@ class NodeParameters:
             self.variance_acc = node.get_parameter('variance_acc')
             node.get_logger().info('\tvariance_acc:\t\t"%s"' % self.variance_acc.value)
             self.variance_angular_vel = node.get_parameter('variance_angular_vel')
-            node.get_logger().info('\tvariance_angular_vel:\t\t"%s"' % self.variance_angular_vel.value)
+            node.get_logger().info('\tvariance_angular_vel:\t"%s"' % self.variance_angular_vel.value)
             self.variance_orientation = node.get_parameter('variance_orientation')
-            node.get_logger().info('\tvariance_orientation:\t\t"%s"' % self.variance_orientation.value)
+            node.get_logger().info('\tvariance_orientation:\t"%s"' % self.variance_orientation.value)
             self.variance_mag = node.get_parameter('variance_mag')
             node.get_logger().info('\tvariance_mag:\t\t"%s"' % self.variance_mag.value)
         except Exception as e:  # noqa: B902
