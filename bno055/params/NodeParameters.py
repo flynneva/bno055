@@ -28,6 +28,7 @@
 
 
 from bno055.connectors.uart import UART
+from bno055 import registers
 from rclpy.node import Node
 
 
@@ -76,11 +77,16 @@ class NodeParameters:
         # scaling factor for gyroscope
         node.declare_parameter('gyr_factor', value=900.0)
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
-        node.declare_parameter('acc_offset', value=[0xFFEC, 0x00A5, 0xFFE8])
+        node.declare_parameter('offset_acc', value=registers.DEFAULT_OFFSET_ACC)
         # +/- 6400 units (1 unit = 1/16 uT)
-        node.declare_parameter('mag_offset', value=[0xFFB4, 0xFE9E, 0x027D])
+        node.declare_parameter('offset_mag', value=registers.DEFAULT_OFFSET_MAG)
         # +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
-        node.declare_parameter('gyr_offset', value=[0x0002, 0xFFFF, 0xFFFF])
+        node.declare_parameter('offset_gyr', value=registers.DEFAULT_OFFSET_GYR)
+        # Sensor standard deviation squared (^2) defaults [x, y, z]
+        node.declare_parameter('use_default_variance', value=True)
+        node.declare_parameter('variance_acc', value=registers.DEFAULT_VARIANCE_ACC)
+        node.declare_parameter('variance_angular_vel', value=registers.DEFAULT_VARIANCE_ANGULAR_VEL)
+        node.declare_parameter('variance_orientation', value=registers.DEFAULT_VARIANCE_ORIENTATION)
 
         # get the parameters - requires CLI arguments '--ros-args --params-file <parameter file>'
         node.get_logger().info('Parameters set to:')
@@ -128,14 +134,23 @@ class NodeParameters:
             self.gyr_factor = node.get_parameter('gyr_factor')
             node.get_logger().info('\tgyr_factor:\t\t"%s"' % self.gyr_factor.value)
 
-            self.acc_offset = node.get_parameter('acc_offset')
-            node.get_logger().info('\tacc_offset:\t\t"%s"' % self.acc_offset.value)
+            self.acc_offset = node.get_parameter('offset_acc')
+            node.get_logger().info('\toffset_acc:\t\t"%s"' % self.offset_acc.value)
 
-            self.mag_offset = node.get_parameter('mag_offset')
-            node.get_logger().info('\tmag_offset:\t\t"%s"' % self.mag_offset.value)
+            self.mag_offset = node.get_parameter('offset_mag')
+            node.get_logger().info('\toffset_mag:\t\t"%s"' % self.offset_mag.value)
 
-            self.gyr_offset = node.get_parameter('gyr_offset')
-            node.get_logger().info('\tgyr_offset:\t\t"%s"' % self.gyr_offset.value)
+            self.gyr_offset = node.get_parameter('offset_gyr')
+            node.get_logger().info('\toffset_gyr:\t\t"%s"' % self.offset_gyr.value)
+
+            self.use_default_variance = node.get_parameter('use_default_variance')
+            node.get_logger().info('\tuse_default_variance:\t\t"%s"' % self.use_default_variance.value)
+            self.variance_acc = node.get_parameter('variance_acc')
+            node.get_logger().info('\tvariance_acc:\t\t"%s"' % self.variance_acc.value)
+            self.variance_angular_vel = node.get_parameter('variance_angular_vel')
+            node.get_logger().info('\tvariance_angular_vel:\t\t"%s"' % self.variance_angular_vel.value)
+            self.variance_orientation = node.get_parameter('variance_orientation')
+            node.get_logger().info('\tvariance_orientation:\t\t"%s"' % self.variance_orientation.value)
 
         except Exception as e:  # noqa: B902
             node.get_logger().warn('Could not get parameters...setting variables to default')
