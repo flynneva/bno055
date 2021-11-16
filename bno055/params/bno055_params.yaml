@@ -13,6 +13,14 @@ bno055:
     acc_factor: 100.0
     mag_factor: 16000000.0
     gyr_factor: 900.0
-    acc_offset: [0xFFEC, 0x00A5, 0xFFE8]
-    mag_offset: [0xFFB4, 0xFE9E, 0x027D]
-    gyr_offset: [0x0002, 0xFFFF, 0xFFFF]
+    set_offsets: false # set to true to use offsets below
+    offset_acc: [0xFFEC, 0x00A5, 0xFFE8]
+    offset_mag: [0xFFB4, 0xFE9E, 0x027D]
+    offset_gyr: [0x0002, 0xFFFF, 0xFFFF]
+    ## Sensor standard deviation [x,y,z]
+    ## Used to calculate covariance matrices
+    ## defaults are used if parameters below are not provided
+    # variance_acc: [0.0, 0.0, 0.0] # [m/s^2]
+    # variance_angular_vel: [0.0, 0.0, 0.0] # [rad/s]
+    # variance_orientation: [0.0, 0.0, 0.0] # [rad]
+    # variance_mag: [0.0, 0.0, 0.0] # [Tesla]

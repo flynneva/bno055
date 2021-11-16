@@ -240,8 +240,20 @@ COM_WRITE = 0x00
 #: Signed hex 16 bit representation
 
 #: +/- 2000 units (at max 2G)    (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
-ACC_OFFSET_DEFAULT = [0xFFEC, 0x00A5, 0xFFE8]
+DEFAULT_OFFSET_ACC = [0xFFEC, 0x00A5, 0xFFE8]
 #: +/- 6400 units                (1 unit = 1/16 uT)
-MAG_OFFSET_DEFAULT = [0xFFB4, 0xFE9E, 0x027D]
+DEFAULT_OFFSET_MAG = [0xFFB4, 0xFE9E, 0x027D]
 #: +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
-GYR_OFFSET_DEFAULT = [0x0002, 0xFFFF, 0xFFFF]
+DEFAULT_OFFSET_GYR = [0x0002, 0xFFFF, 0xFFFF]
+
+#: Sensor standard deviation squared (^2) defaults [x, y, z]
+#: Used to get covariance matrices (stddev^2 = variance)
+#: values taken from this ROS1 driver from octanis:
+#: https://github.com/Octanis1/bosch_imu_driver/commit/d1132e27ecff46a63c128f7ecacc245c98b2811a
+DEFAULT_VARIANCE_ACC = [0.017, 0.017, 0.017]
+DEFAULT_VARIANCE_ANGULAR_VEL = [0.04, 0.04, 0.04]
+DEFAULT_VARIANCE_ORIENTATION = [0.0159, 0.0159, 0.0159]
+# TODO(flynneva) calculate default magnetic variance matrice
+DEFAULT_VARIANCE_MAG = [0.0, 0.0, 0.0]
+
+
