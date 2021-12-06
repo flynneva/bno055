@@ -151,23 +151,23 @@ class SensorService:
             0, self.param.variance_orientation, 0,
             0, 0, self.param.variance_orientation
         ]
-        imu_raw_msg.linear_acceleration.x = float(
-            struct.unpack('h', struct.pack('BB', buf[0], buf[1]))[0]) / self.param.acc_factor.value
-        imu_raw_msg.linear_acceleration.y = float(
-            struct.unpack('h', struct.pack('BB', buf[2], buf[3]))[0]) / self.param.acc_factor.value
-        imu_raw_msg.linear_acceleration.z = float(
-            struct.unpack('h', struct.pack('BB', buf[4], buf[5]))[0]) / self.param.acc_factor.value
+        imu_raw_msg.linear_acceleration.x = \
+            self.unpackBytesToFloat(buf[0], buf[1]) / self.param.acc_factor.value
+        imu_raw_msg.linear_acceleration.y = \
+            self.unpackBytesToFloat(buf[2], buf[3]) / self.param.acc_factor.value
+        imu_raw_msg.linear_acceleration.z = \
+            self.unpackBytesToFloat(buf[4], buf[5]) / self.param.acc_factor.value
         imu_raw_msg.linear_acceleration_covariance = [
             self.param.variance_acc, 0, 0,
             0, self.param.variance_acc, 0,
             0, 0, self.param.variance_acc
         ]
-        imu_raw_msg.angular_velocity.x = float(
-            struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / self.param.gyr_factor.value
-        imu_raw_msg.angular_velocity.y = float(
-            struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / self.param.gyr_factor.value
-        imu_raw_msg.angular_velocity.z = float(
-            struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / self.param.gyr_factor.value
+        imu_raw_msg.angular_velocity.x = \
+            self.unpackBytesToFloat(buf[12], buf[13]) / self.param.gyr_factor.value
+        imu_raw_msg.angular_velocity.y = \
+            self.unpackBytesToFloat(buf[14], buf[15]) / self.param.gyr_factor.value
+        imu_raw_msg.angular_velocity.z = \
+            self.unpackBytesToFloat(buf[16], buf[17]) / self.param.gyr_factor.value
         imu_raw_msg.angular_velocity_covariance = [
             self.param.variance_angular_vel, 0, 0,
             0, self.param.variance_angular_vel, 0,
@@ -183,10 +183,10 @@ class SensorService:
 
         q = Quaternion()
         # imu_msg.header.seq = seq
-        q.w = float(struct.unpack('h', struct.pack('BB', buf[24], buf[25]))[0])
-        q.x = float(struct.unpack('h', struct.pack('BB', buf[26], buf[27]))[0])
-        q.y = float(struct.unpack('h', struct.pack('BB', buf[28], buf[29]))[0])
-        q.z = float(struct.unpack('h', struct.pack('BB', buf[30], buf[31]))[0])
+        q.w = self.unpackBytesToFloat(buf[24], buf[25])
+        q.x = self.unpackBytesToFloat(buf[26], buf[27])
+        q.y = self.unpackBytesToFloat(buf[28], buf[29])
+        q.z = self.unpackBytesToFloat(buf[30], buf[31])
         # TODO(flynneva): replace with standard normalize() function
         # normalize
         norm = sqrt(q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w)
@@ -197,19 +197,19 @@ class SensorService:
 
         imu_msg.orientation_covariance = imu_raw_msg.orientation_covariance
 
-        imu_msg.linear_acceleration.x = float(
-            struct.unpack('h', struct.pack('BB', buf[32], buf[33]))[0]) / self.param.acc_factor.value
-        imu_msg.linear_acceleration.y = float(
-            struct.unpack('h', struct.pack('BB', buf[34], buf[35]))[0]) / self.param.acc_factor.value
-        imu_msg.linear_acceleration.z = float(
-            struct.unpack('h', struct.pack('BB', buf[36], buf[37]))[0]) / self.param.acc_factor.value
+        imu_msg.linear_acceleration.x = \
+            self.unpackBytesToFloat(buf[32], buf[33]) / self.param.acc_factor.value
+        imu_msg.linear_acceleration.y = \
+            self.unpackBytesToFloat(buf[34], buf[35]) / self.param.acc_factor.value
+        imu_msg.linear_acceleration.z = \
+            self.unpackBytesToFloat( buf[36], buf[37]) / self.param.acc_factor.value
         imu_msg.linear_acceleration_covariance = imu_raw_msg.linear_acceleration_covariance
-        imu_msg.angular_velocity.x = float(
-            struct.unpack('h', struct.pack('BB', buf[12], buf[13]))[0]) / self.param.gyr_factor.value
-        imu_msg.angular_velocity.y = float(
-            struct.unpack('h', struct.pack('BB', buf[14], buf[15]))[0]) / self.param.gyr_factor.value
-        imu_msg.angular_velocity.z = float(
-            struct.unpack('h', struct.pack('BB', buf[16], buf[17]))[0]) / self.param.gyr_factor.value
+        imu_msg.angular_velocity.x = \
+            self.unpackBytesToFloat(buf[12], buf[13]) / self.param.gyr_factor.value
+        imu_msg.angular_velocity.y = \
+            self.unpackBytesToFloat(buf[14], buf[15]) / self.param.gyr_factor.value
+        imu_msg.angular_velocity.z = \
+            self.unpackBytesToFloat(buf[16], buf[17]) / self.param.gyr_factor.value
         imu_msg.angular_velocity_covariance = imu_raw_msg.angular_velocity_covariance
         self.pub_imu.publish(imu_msg)
 
@@ -218,11 +218,11 @@ class SensorService:
         mag_msg.header.frame_id = self.param.frame_id.value
         # mag_msg.header.seq = seq
         mag_msg.magnetic_field.x = \
-            float(struct.unpack('h', struct.pack('BB', buf[6], buf[7]))[0]) / self.param.mag_factor.value
+            self.unpackBytesToFloat(buf[6], buf[7]) / self.param.mag_factor.value
         mag_msg.magnetic_field.y = \
-            float(struct.unpack('h', struct.pack('BB', buf[8], buf[9]))[0]) / self.param.mag_factor.value
+            self.unpackBytesToFloat(buf[8], buf[9]) / self.param.mag_factor.value
         mag_msg.magnetic_field.z = \
-            float(struct.unpack('h', struct.pack('BB', buf[10], buf[11]))[0]) / self.param.mag_factor.value
+            self.unpackBytesToFloat(buf[10], buf[11]) / self.param.mag_factor.value
         mag_msg.magnetic_field_covariance = [
             self.param.variance_mag, 0, 0,
             0, self.param.variance_mag, 0,
@@ -339,3 +339,6 @@ class SensorService:
             return True
         except Exception:  # noqa: B902
             return False
+
+    def unpackBytesToFloat(start, end):
+        return float(struct.unpack('h', struct.pack('BB', start, end))[0])
