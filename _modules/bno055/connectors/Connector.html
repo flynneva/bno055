@@ -85,8 +85,8 @@
 <span class="sd">        :raises TransmissionException in case of any error</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_WR</span><span class="p">)</span>
-        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">READ</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_START_BYTE_WR</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_READ</span><span class="p">)</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reg_addr</span><span class="p">)</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
 
@@ -104,7 +104,7 @@
                                         <span class="o">%</span> <span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">())</span>
 
         <span class="c1"># Check for READ result (success or failure):</span>
-        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_ERROR_RESP</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">registers</span><span class="o">.</span><span class="n">COM_START_BYTE_ERROR_RESP</span><span class="p">:</span>
             <span class="c1"># Error 0x07 (BUS_OVER_RUN_ERROR) can be &quot;normal&quot; if data fusion is not yet ready</span>
             <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
                 <span class="c1"># see #5</span>
@@ -113,7 +113,7 @@
                 <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;READ-request failed with error code </span><span class="si">%s</span><span class="s1">&#39;</span>
                                             <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="c1"># Check for correct READ response header:</span>
-        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_RESP</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">registers</span><span class="o">.</span><span class="n">COM_START_BYTE_RESP</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TransmissionException</span><span class="p">(</span><span class="s1">&#39;Wrong READ-request response header </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">buf_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
         <span class="k">if</span> <span class="p">(</span><span class="n">buf_in</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">!=</span> <span class="n">buf_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
@@ -145,8 +145,8 @@
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">START_BYTE_WR</span><span class="p">)</span>
-        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">WRITE</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_START_BYTE_WR</span><span class="p">)</span>
+        <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_WRITE</span><span class="p">)</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reg_addr</span><span class="p">)</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
         <span class="c1"># Append payload data to the written:</span>
@@ -228,7 +228,7 @@
       &copy;2021, Evan Flynn, Manfred Novotny.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.2.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
