@@ -5,7 +5,7 @@ package_name = 'bno055'
 
 setup(
     name=package_name,
-    version='0.1.0',
+    version='0.2.0',
     # find sub-packages automatically in order to allow sub-modules, etc. to be imported:
     # packages=[package_name],
     packages=find_packages(exclude=['test']),
