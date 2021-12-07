@@ -147,9 +147,9 @@ class SensorService:
 
         # TODO: make this an option to publish?
         imu_raw_msg.orientation_covariance = [
-            self.param.variance_orientation.value[0], 0 , 0,
-            0, self.param.variance_orientation.value[1], 0,
-            0, 0, self.param.variance_orientation.value[2]
+            self.param.variance_orientation.value[0], 0.0 , 0.0,
+            0.0, self.param.variance_orientation.value[1], 0.0,
+            0.0, 0.0, self.param.variance_orientation.value[2]
         ]
 
         imu_raw_msg.linear_acceleration.x = \
@@ -159,9 +159,9 @@ class SensorService:
         imu_raw_msg.linear_acceleration.z = \
             self.unpackBytesToFloat(buf[4], buf[5]) / self.param.acc_factor.value
         imu_raw_msg.linear_acceleration_covariance = [
-            self.param.variance_acc.value[0], 0, 0,
-            0, self.param.variance_acc.value[1], 0,
-            0, 0, self.param.variance_acc.value[2]
+            self.param.variance_acc.value[0], 0.0, 0.0,
+            0.0, self.param.variance_acc.value[1], 0.0,
+            0.0, 0.0, self.param.variance_acc.value[2]
         ]
         imu_raw_msg.angular_velocity.x = \
             self.unpackBytesToFloat(buf[12], buf[13]) / self.param.gyr_factor.value
@@ -170,9 +170,9 @@ class SensorService:
         imu_raw_msg.angular_velocity.z = \
             self.unpackBytesToFloat(buf[16], buf[17]) / self.param.gyr_factor.value
         imu_raw_msg.angular_velocity_covariance = [
-            self.param.variance_angular_vel.value[0], 0, 0,
-            0, self.param.variance_angular_vel.value[1], 0,
-            0, 0, self.param.variance_angular_vel.value[2]
+            self.param.variance_angular_vel.value[0], 0.0, 0.0,
+            0.0, self.param.variance_angular_vel.value[1], 0.0,
+            0.0, 0.0, self.param.variance_angular_vel.value[2]
         ]
         # node.get_logger().info('Publishing imu message')
         self.pub_imu_raw.publish(imu_raw_msg)
