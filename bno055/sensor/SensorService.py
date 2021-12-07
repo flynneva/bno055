@@ -147,10 +147,11 @@ class SensorService:
 
         # TODO: make this an option to publish?
         imu_raw_msg.orientation_covariance = [
-            self.param.variance_orientation, 0 , 0,
-            0, self.param.variance_orientation, 0,
-            0, 0, self.param.variance_orientation
+            self.param.variance_orientation.value[0], 0 , 0,
+            0, self.param.variance_orientation.value[1], 0,
+            0, 0, self.param.variance_orientation.value[2]
         ]
+
         imu_raw_msg.linear_acceleration.x = \
             self.unpackBytesToFloat(buf[0], buf[1]) / self.param.acc_factor.value
         imu_raw_msg.linear_acceleration.y = \
@@ -340,5 +341,5 @@ class SensorService:
         except Exception:  # noqa: B902
             return False
 
-    def unpackBytesToFloat(start, end):
+    def unpackBytesToFloat(self, start, end):
         return float(struct.unpack('h', struct.pack('BB', start, end))[0])
