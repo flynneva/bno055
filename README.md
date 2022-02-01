@@ -121,6 +121,11 @@ Run with customized parameter file:
 
     ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
     
+Run launch file:
+
+    ros2 launch bno055 bno055.launch.py
+    
+
 ### Performing flake8 Linting
 
 To perform code linting with [flake8](https://gitlab.com/pycqa/flake8) just perform:
