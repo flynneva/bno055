@@ -302,7 +302,7 @@ class SensorService:
                 gyro_offset_read_y,
                 gyro_offset_read_z))
 
-    def set_calib_offsets(self, acc_offset, mag_offset, gyr_offset):
+    def set_calib_offsets(self, acc_offset, mag_offset, gyr_offset, mag_radius, acc_radius):
         """
         Write calibration data (define as 16 bit signed hex).
 
@@ -324,6 +324,9 @@ class SensorService:
             self.con.transmit(registers.ACCEL_OFFSET_Z_LSB_ADDR, 1, bytes([acc_offset[2] & 0xFF]))
             self.con.transmit(registers.ACCEL_OFFSET_Z_MSB_ADDR, 1, bytes([(acc_offset[2] >> 8) & 0xFF]))
 
+            self.con.transmit(registers.ACCEL_RADIUS_LSB_ADDR, 1, bytes([acc_radius & 0xFF]))
+            self.con.transmit(registers.ACCEL_RADIUS_MSB_ADDR, 1, bytes([(acc_radius >> 8) & 0xFF]))
+
             self.con.transmit(registers.MAG_OFFSET_X_LSB_ADDR, 1, bytes([mag_offset[0] & 0xFF]))
             self.con.transmit(registers.MAG_OFFSET_X_MSB_ADDR, 1, bytes([(mag_offset[0] >> 8) & 0xFF]))
             self.con.transmit(registers.MAG_OFFSET_Y_LSB_ADDR, 1, bytes([mag_offset[1] & 0xFF]))
@@ -331,12 +334,16 @@ class SensorService:
             self.con.transmit(registers.MAG_OFFSET_Z_LSB_ADDR, 1, bytes([mag_offset[2] & 0xFF]))
             self.con.transmit(registers.MAG_OFFSET_Z_MSB_ADDR, 1, bytes([(mag_offset[2] >> 8) & 0xFF]))
 
+            self.con.transmit(registers.MAG_RADIUS_LSB_ADDR, 1, bytes([mag_radius & 0xFF]))
+            self.con.transmit(registers.MAG_RADIUS_MSB_ADDR, 1, bytes([(mag_radius >> 8) & 0xFF]))
+
             self.con.transmit(registers.GYRO_OFFSET_X_LSB_ADDR, 1, bytes([gyr_offset[0] & 0xFF]))
             self.con.transmit(registers.GYRO_OFFSET_X_MSB_ADDR, 1, bytes([(gyr_offset[0] >> 8) & 0xFF]))
             self.con.transmit(registers.GYRO_OFFSET_Y_LSB_ADDR, 1, bytes([gyr_offset[1] & 0xFF]))
             self.con.transmit(registers.GYRO_OFFSET_Y_MSB_ADDR, 1, bytes([(gyr_offset[1] >> 8) & 0xFF]))
             self.con.transmit(registers.GYRO_OFFSET_Z_LSB_ADDR, 1, bytes([gyr_offset[2] & 0xFF]))
             self.con.transmit(registers.GYRO_OFFSET_Z_MSB_ADDR, 1, bytes([(gyr_offset[2] >> 8) & 0xFF]))
+
             return True
         except Exception:  # noqa: B902
             return False
