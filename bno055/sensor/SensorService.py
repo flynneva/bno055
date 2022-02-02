@@ -60,7 +60,7 @@ class SensorService:
         self.pub_mag = node.create_publisher(MagneticField, prefix + 'mag', QoSProf)
         self.pub_temp = node.create_publisher(Temperature, prefix + 'temp', QoSProf)
         self.pub_calib_status = node.create_publisher(String, prefix + 'calib_status', QoSProf)
-        self.srv = self.node.create_service(Trigger, 'calibration_request', self.calibration_request_callback)
+        self.srv = self.node.create_service(Trigger, prefix + 'calibration_request', self.calibration_request_callback)
 
     def configure(self):
         """Configure the IMU sensor hardware."""
