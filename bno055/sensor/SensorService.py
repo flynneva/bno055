@@ -381,7 +381,6 @@ class SensorService:
         except Exception:  # noqa: B902
             return False
 
-    # ros2 service call /calibration_print_request /activate_robot example_interfaces/srv/Trigger
     def calibration_request_callback(self, request, response):
         if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_CONFIG]))):
             self.node.get_logger().warn('Unable to set IMU into config mode.')
