@@ -104,7 +104,7 @@ class SensorService:
             'P7': bytes(b'\x24\x05')
         }
         if not (self.con.transmit(registers.BNO055_AXIS_MAP_CONFIG_ADDR, 2,
-                mount_positions[self.param.placement_axis_remap.value])):
+                                  mount_positions[self.param.placement_axis_remap.value])):
             self.node.get_logger().warn('Unable to set sensor placement configuration.')
 
         # Show the current sensor offsets
@@ -147,7 +147,7 @@ class SensorService:
 
         # TODO: make this an option to publish?
         imu_raw_msg.orientation_covariance = [
-            self.param.variance_orientation.value[0], 0.0 , 0.0,
+            self.param.variance_orientation.value[0], 0.0, 0.0,
             0.0, self.param.variance_orientation.value[1], 0.0,
             0.0, 0.0, self.param.variance_orientation.value[2]
         ]
@@ -190,7 +190,7 @@ class SensorService:
         q.z = self.unpackBytesToFloat(buf[30], buf[31])
         # TODO(flynneva): replace with standard normalize() function
         # normalize
-        norm = sqrt(q.x*q.x + q.y*q.y + q.z*q.z + q.w*q.w)
+        norm = sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w)
         imu_msg.orientation.x = q.x / norm
         imu_msg.orientation.y = q.y / norm
         imu_msg.orientation.z = q.z / norm
@@ -203,7 +203,7 @@ class SensorService:
         imu_msg.linear_acceleration.y = \
             self.unpackBytesToFloat(buf[34], buf[35]) / self.param.acc_factor.value
         imu_msg.linear_acceleration.z = \
-            self.unpackBytesToFloat( buf[36], buf[37]) / self.param.acc_factor.value
+            self.unpackBytesToFloat(buf[36], buf[37]) / self.param.acc_factor.value
         imu_msg.linear_acceleration_covariance = imu_raw_msg.linear_acceleration_covariance
         imu_msg.angular_velocity.x = \
             self.unpackBytesToFloat(buf[12], buf[13]) / self.param.gyr_factor.value
@@ -268,6 +268,9 @@ class SensorService:
         accel_offset_read_z = (accel_offset_read[5] << 8) | accel_offset_read[
             4]  # Combine MSB and LSB registers into one decimal
 
+        accel_radius_read = self.con.receive(registers.ACCEL_RADIUS_LSB_ADDR, 2)
+        accel_radius_read_value = (accel_radius_read[1] << 8) | accel_radius_read[0]
+
         mag_offset_read = self.con.receive(registers.MAG_OFFSET_X_LSB_ADDR, 6)
         mag_offset_read_x = (mag_offset_read[1] << 8) | mag_offset_read[
             0]  # Combine MSB and LSB registers into one decimal
@@ -275,6 +278,9 @@ class SensorService:
             2]  # Combine MSB and LSB registers into one decimal
         mag_offset_read_z = (mag_offset_read[5] << 8) | mag_offset_read[
             4]  # Combine MSB and LSB registers into one decimal
+
+        mag_radius_read = self.con.receive(registers.MAG_RADIUS_LSB_ADDR, 2)
+        mag_radius_read_value = (mag_radius_read[1] << 8) | mag_radius_read[0]
 
         gyro_offset_read = self.con.receive(registers.GYRO_OFFSET_X_LSB_ADDR, 6)
         gyro_offset_read_x = (gyro_offset_read[1] << 8) | gyro_offset_read[
@@ -291,10 +297,22 @@ class SensorService:
                 accel_offset_read_z))
 
         self.node.get_logger().info(
+            '\tAccel radius: %d' % (
+                accel_radius_read_value,
+            )
+        )
+
+        self.node.get_logger().info(
             '\tMag offsets (x y z): %d %d %d' % (
                 mag_offset_read_x,
                 mag_offset_read_y,
                 mag_offset_read_z))
+
+        self.node.get_logger().info(
+            '\tMag radius: %d' % (
+                mag_radius_read_value,
+            )
+        )
 
         self.node.get_logger().info(
             '\tGyro offsets (x y z): %d %d %d' % (
@@ -309,6 +327,8 @@ class SensorService:
         :param acc_offset:
         :param mag_offset:
         :param gyr_offset:
+        :param mag_radius:
+        :param acc_radius:
         """
         # Must switch to config mode to write out
         if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_CONFIG]))):
