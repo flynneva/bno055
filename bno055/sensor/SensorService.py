@@ -60,6 +60,8 @@ class SensorService:
         self.pub_temp = node.create_publisher(Temperature, prefix + 'temp', QoSProf)
         self.pub_calib_status = node.create_publisher(String, prefix + 'calib_status', QoSProf)
 
+        self.seq = 0
+
     def configure(self):
         """Configure the IMU sensor hardware."""
         self.node.get_logger().info('Configuring device...')
@@ -139,11 +141,9 @@ class SensorService:
         # read from sensor
         buf = self.con.receive(registers.BNO055_ACCEL_DATA_X_LSB_ADDR, 45)
         # Publish raw data
-        # TODO: convert rcl Clock time to ros time?
-        # imu_raw_msg.header.stamp = node.get_clock().now()
+        imu_raw_msg.header.stamp = self.node.get_clock().now().to_msg()
         imu_raw_msg.header.frame_id = self.param.frame_id.value
-        # TODO: do headers need sequence counters now?
-        # imu_raw_msg.header.seq = seq
+        imu_raw_msg.header.seq = self.seq
 
         # TODO: make this an option to publish?
         imu_raw_msg.orientation_covariance = [
@@ -179,11 +179,11 @@ class SensorService:
 
         # TODO: make this an option to publish?
         # Publish filtered data
-        # imu_msg.header.stamp = node.get_clock().now()
+        imu_msg.header.stamp = self.node.get_clock().now().to_msg()
         imu_msg.header.frame_id = self.param.frame_id.value
 
         q = Quaternion()
-        # imu_msg.header.seq = seq
+        imu_msg.header.seq = self.seq
         q.w = self.unpackBytesToFloat(buf[24], buf[25])
         q.x = self.unpackBytesToFloat(buf[26], buf[27])
         q.y = self.unpackBytesToFloat(buf[28], buf[29])
@@ -215,9 +215,9 @@ class SensorService:
         self.pub_imu.publish(imu_msg)
 
         # Publish magnetometer data
-        # mag_msg.header.stamp = node.get_clock().now()
+        mag_msg.header.stamp = self.node.get_clock().now().to_msg()
         mag_msg.header.frame_id = self.param.frame_id.value
-        # mag_msg.header.seq = seq
+        mag_msg.header.seq = self.seq
         mag_msg.magnetic_field.x = \
             self.unpackBytesToFloat(buf[6], buf[7]) / self.param.mag_factor.value
         mag_msg.magnetic_field.y = \
@@ -232,11 +232,13 @@ class SensorService:
         self.pub_mag.publish(mag_msg)
 
         # Publish temperature
-        # temp_msg.header.stamp = node.get_clock().now()
+        temp_msg.header.stamp = self.node.get_clock().now().to_msg()
         temp_msg.header.frame_id = self.param.frame_id.value
-        # temp_msg.header.seq = seq
+        temp_msg.header.seq = self.seq
         temp_msg.temperature = float(buf[44])
         self.pub_temp.publish(temp_msg)
+
+        self.seq += 1
 
     def get_calib_status(self):
         """
