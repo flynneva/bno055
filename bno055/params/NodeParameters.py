@@ -146,8 +146,14 @@ class NodeParameters:
             self.offset_acc = node.get_parameter('offset_acc')
             node.get_logger().info('\toffset_acc:\t\t"%s"' % self.offset_acc.value)
 
+            self.radius_acc = node.get_parameter('radius_acc')
+            node.get_logger().info('\tradius_acc:\t\t"%s"' % self.radius_acc.value)
+
             self.offset_mag = node.get_parameter('offset_mag')
             node.get_logger().info('\toffset_mag:\t\t"%s"' % self.offset_mag.value)
+
+            self.radius_mag = node.get_parameter('radius_mag')
+            node.get_logger().info('\tradius_mag:\t\t"%s"' % self.radius_mag.value)
 
             self.offset_gyr = node.get_parameter('offset_gyr')
             node.get_logger().info('\toffset_gyr:\t\t"%s"' % self.offset_gyr.value)

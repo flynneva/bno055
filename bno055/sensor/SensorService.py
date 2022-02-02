@@ -40,6 +40,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from sensor_msgs.msg import Imu, MagneticField, Temperature
 from std_msgs.msg import String
+from example_interfaces.srv import Trigger
 
 
 class SensorService:
@@ -59,8 +60,7 @@ class SensorService:
         self.pub_mag = node.create_publisher(MagneticField, prefix + 'mag', QoSProf)
         self.pub_temp = node.create_publisher(Temperature, prefix + 'temp', QoSProf)
         self.pub_calib_status = node.create_publisher(String, prefix + 'calib_status', QoSProf)
-
-        self.seq = 0
+        self.srv = self.node.create_service(Trigger, 'calibration_request', self.calibration_request_callback)
 
     def configure(self):
         """Configure the IMU sensor hardware."""
@@ -111,16 +111,18 @@ class SensorService:
 
         # Show the current sensor offsets
         print('Current sensor offsets:')
-        self.get_calib_offsets()
-        if (self.param.set_offsets):
+        self.print_calib_data()
+        if self.param.set_offsets:
             configured_offsets = \
                 self.set_calib_offsets(
                     self.param.offset_acc,
                     self.param.offset_mag,
-                    self.param.offset_gyr)
-            if (configured_offsets):
+                    self.param.offset_gyr,
+                    self.param.radius_mag,
+                    self.param.radius_acc)
+            if configured_offsets:
                 print('Successfully configured sensor offsets to:')
-                self.get_calib_offsets()
+                self.print_calib_data()
 
         # Set Device to NDOF mode
         # data fusion for gyroscope, acceleration sensor and magnetometer enabled
@@ -143,7 +145,8 @@ class SensorService:
         # Publish raw data
         imu_raw_msg.header.stamp = self.node.get_clock().now().to_msg()
         imu_raw_msg.header.frame_id = self.param.frame_id.value
-        imu_raw_msg.header.seq = self.seq
+        # TODO: do headers need sequence counters now?
+        # imu_raw_msg.header.seq = seq
 
         # TODO: make this an option to publish?
         imu_raw_msg.orientation_covariance = [
@@ -183,7 +186,7 @@ class SensorService:
         imu_msg.header.frame_id = self.param.frame_id.value
 
         q = Quaternion()
-        imu_msg.header.seq = self.seq
+        # imu_msg.header.seq = seq
         q.w = self.unpackBytesToFloat(buf[24], buf[25])
         q.x = self.unpackBytesToFloat(buf[26], buf[27])
         q.y = self.unpackBytesToFloat(buf[28], buf[29])
@@ -217,7 +220,7 @@ class SensorService:
         # Publish magnetometer data
         mag_msg.header.stamp = self.node.get_clock().now().to_msg()
         mag_msg.header.frame_id = self.param.frame_id.value
-        mag_msg.header.seq = self.seq
+        # mag_msg.header.seq = seq
         mag_msg.magnetic_field.x = \
             self.unpackBytesToFloat(buf[6], buf[7]) / self.param.mag_factor.value
         mag_msg.magnetic_field.y = \
@@ -234,11 +237,9 @@ class SensorService:
         # Publish temperature
         temp_msg.header.stamp = self.node.get_clock().now().to_msg()
         temp_msg.header.frame_id = self.param.frame_id.value
-        temp_msg.header.seq = self.seq
+        # temp_msg.header.seq = seq
         temp_msg.temperature = float(buf[44])
         self.pub_temp.publish(temp_msg)
-
-        self.seq += 1
 
     def get_calib_status(self):
         """
@@ -260,8 +261,9 @@ class SensorService:
         # Publish via ROS topic:
         self.pub_calib_status.publish(calib_status_str)
 
-    def get_calib_offsets(self):
-        """Read all calibration offsets and print to screen."""
+    def get_calib_data(self):
+        """Read all calibration data."""
+
         accel_offset_read = self.con.receive(registers.ACCEL_OFFSET_X_LSB_ADDR, 6)
         accel_offset_read_x = (accel_offset_read[1] << 8) | accel_offset_read[
             0]  # Combine MSB and LSB registers into one decimal
@@ -292,35 +294,44 @@ class SensorService:
         gyro_offset_read_z = (gyro_offset_read[5] << 8) | gyro_offset_read[
             4]  # Combine MSB and LSB registers into one decimal
 
+        calib_data = {'accel_offset': {'x': accel_offset_read_x, 'y': accel_offset_read_y, 'z': accel_offset_read_z}, 'accel_radius': accel_radius_read_value,
+                      'mag_offset': {'x': mag_offset_read_x, 'y': mag_offset_read_y, 'z': mag_offset_read_z}, 'mag_radius': mag_radius_read_value,
+                      'gyro_offset': {'x': gyro_offset_read_x, 'y': gyro_offset_read_y, 'z': gyro_offset_read_z}}
+
+        return calib_data
+
+    def print_calib_data(self):
+        """Read all calibration data and print to screen."""
+        calib_data = self.get_calib_data()
         self.node.get_logger().info(
             '\tAccel offsets (x y z): %d %d %d' % (
-                accel_offset_read_x,
-                accel_offset_read_y,
-                accel_offset_read_z))
+                calib_data['accel_offset']['x'],
+                calib_data['accel_offset']['y'],
+                calib_data['accel_offset']['z']))
 
         self.node.get_logger().info(
             '\tAccel radius: %d' % (
-                accel_radius_read_value,
+                calib_data['accel_radius'],
             )
         )
 
         self.node.get_logger().info(
             '\tMag offsets (x y z): %d %d %d' % (
-                mag_offset_read_x,
-                mag_offset_read_y,
-                mag_offset_read_z))
+                calib_data['mag_offset']['x'],
+                calib_data['mag_offset']['y'],
+                calib_data['mag_offset']['z']))
 
         self.node.get_logger().info(
             '\tMag radius: %d' % (
-                mag_radius_read_value,
+                calib_data['mag_radius'],
             )
         )
 
         self.node.get_logger().info(
             '\tGyro offsets (x y z): %d %d %d' % (
-                gyro_offset_read_x,
-                gyro_offset_read_y,
-                gyro_offset_read_z))
+                calib_data['gyro_offset']['x'],
+                calib_data['gyro_offset']['y'],
+                calib_data['gyro_offset']['z']))
 
     def set_calib_offsets(self, acc_offset, mag_offset, gyr_offset, mag_radius, acc_radius):
         """
@@ -369,6 +380,18 @@ class SensorService:
             return True
         except Exception:  # noqa: B902
             return False
+
+    # ros2 service call /calibration_print_request /activate_robot example_interfaces/srv/Trigger
+    def calibration_request_callback(self, request, response):
+        if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_CONFIG]))):
+            self.node.get_logger().warn('Unable to set IMU into config mode.')
+        sleep(0.025)
+        calib_data = self.get_calib_data()
+        if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_NDOF]))):
+            self.node.get_logger().warn('Unable to set IMU operation mode into operation mode.')
+        response.success = True
+        response.message = str(calib_data)
+        return response
 
     def unpackBytesToFloat(self, start, end):
         return float(struct.unpack('h', struct.pack('BB', start, end))[0])
