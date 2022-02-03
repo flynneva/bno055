@@ -85,9 +85,9 @@ class NodeParameters:
         # +/- 2000 units up to 32000 (dps range dependent)               (1 unit = 1/16 dps)
         node.declare_parameter('offset_gyr', value=registers.DEFAULT_OFFSET_GYR)
         # +/-1000 units
-        node.declare_parameter('radius_acc', value=0)
+        node.declare_parameter('radius_acc', value=registers.DEFAULT_RADIUS_ACC)
         #  +/-960 units
-        node.declare_parameter('radius_mag', value=0)
+        node.declare_parameter('radius_mag', value=registers.DEFAULT_RADIUS_MAG)
         # Sensor standard deviation squared (^2) defaults [x, y, z]
         node.declare_parameter('variance_acc', value=registers.DEFAULT_VARIANCE_ACC)
         node.declare_parameter('variance_angular_vel', value=registers.DEFAULT_VARIANCE_ANGULAR_VEL)
