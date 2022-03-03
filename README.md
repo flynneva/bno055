@@ -56,6 +56,13 @@ See Bosch BNO055 datasheet section "Axis Remap" for valid positions: "P0", "P1" 
 
 - **ros_topic_prefix**: ROS topic prefix to be used. Will be prepended to the default topic names (see below). Default="bno055/"
 
+### Calibration
+
+The current calibration values can be requested via the **calibration_request** service (this puts the imu into **CONFIGMODE** for a short time):
+
+```
+ros2 service call /bno055/calibration_request example_interfaces/srv/Trigger
+```
 ---
 ## ROS Topics
 
@@ -121,6 +128,11 @@ Run with customized parameter file:
 
     ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno055_params.yaml
     
+Run launch file:
+
+    ros2 launch bno055 bno055.launch.py
+    
+
 ### Performing flake8 Linting
 
 To perform code linting with [flake8](https://gitlab.com/pycqa/flake8) just perform:

@@ -15,7 +15,7 @@
   <exec_depend>rclpy</exec_depend>
   <!-- Publishing standard message types: -->
   <exec_depend>std_msgs</exec_depend>
- 
+  <exec_depend>example_interfaces</exec_depend>
   <!-- These test dependencies are optional
   Their purpose is to make sure that the code passes the linters -->
   <test_depend>ament_copyright</test_depend>
