@@ -127,10 +127,11 @@ class SensorService:
                 self.node.get_logger().warn('setting offsets failed')
 
 
-        # Set Device to NDOF mode
-        # data fusion for gyroscope, acceleration sensor and magnetometer enabled
-        # absolute orientation
-        if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_NDOF]))):
+        # Set Device mode
+        device_mode = self.param.operation_mode.value
+        self.node.get_logger().info(f"Setting device_mode to {device_mode=}")
+
+        if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([device_mode]))):
             self.node.get_logger().warn('Unable to set IMU operation mode into operation mode.')
 
         self.node.get_logger().info('Bosch BNO055 IMU configuration complete.')
