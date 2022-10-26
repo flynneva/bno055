@@ -11,7 +11,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="error_handling" href="error_handling.html" />
@@ -33,10 +35,10 @@
           <div class="body" role="main">
             
   <div class="section" id="module-bno055.connectors.Connector">
-<span id="connectors"></span><h1>connectors<a class="headerlink" href="#module-bno055.connectors.Connector" title="Permalink to this headline">¶</a></h1>
+<span id="connectors"></span><h1>connectors<a class="headerlink" href="#module-bno055.connectors.Connector" title="Permalink to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="bno055.connectors.Connector.Connector">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.Connector.</span></span><span class="sig-name descname"><span class="pre">Connector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rclpy.node.Node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/Connector.html#Connector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.Connector.Connector" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.Connector.</span></span><span class="sig-name descname"><span class="pre">Connector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/Connector.html#Connector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.Connector.Connector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parent class for bno055 connectors.</p>
 <p>This class does NOT contain protocol-specific code for UART, I2C, etc.</p>
@@ -80,15 +82,15 @@
 
 <span class="target" id="module-bno055.connectors.uart"></span><dl class="py class">
 <dt class="sig sig-object py" id="bno055.connectors.uart.UART">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.uart.</span></span><span class="sig-name descname"><span class="pre">UART</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rclpy.node.Node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baudrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/uart.html#UART"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.uart.UART" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><code class="xref py py-class docutils literal notranslate"><span class="pre">bno055.connectors.Connector.Connector</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.uart.</span></span><span class="sig-name descname"><span class="pre">UART</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baudrate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/uart.html#UART"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.uart.UART" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connector</span></code></a></p>
 <p>Connector implementation for serial UART connection to the sensor.</p>
 </dd></dl>
 
 <span class="target" id="module-bno055.connectors.i2c"></span><dl class="py class">
 <dt class="sig sig-object py" id="bno055.connectors.i2c.I2C">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.i2c.</span></span><span class="sig-name descname"><span class="pre">I2C</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">rclpy.node.Node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/i2c.html#I2C"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.i2c.I2C" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><code class="xref py py-class docutils literal notranslate"><span class="pre">bno055.connectors.Connector.Connector</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bno055.connectors.i2c.</span></span><span class="sig-name descname"><span class="pre">I2C</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/i2c.html#I2C"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.i2c.I2C" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connector</span></code></a></p>
 </dd></dl>
 
 </div>
@@ -113,7 +115,16 @@
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="bno055.html">bno055</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">connectors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">connectors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.connectors.Connector.Connector"><code class="docutils literal notranslate"><span class="pre">Connector</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bno055.connectors.Connector.Connector.receive"><code class="docutils literal notranslate"><span class="pre">Connector.receive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bno055.connectors.Connector.Connector.transmit"><code class="docutils literal notranslate"><span class="pre">Connector.transmit()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.connectors.uart.UART"><code class="docutils literal notranslate"><span class="pre">UART</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.connectors.i2c.I2C"><code class="docutils literal notranslate"><span class="pre">I2C</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="params.html">params</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sensor.html">sensor</a></li>
@@ -138,7 +149,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -155,7 +166,7 @@
       &copy;2021, Evan Flynn, Manfred Novotny.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

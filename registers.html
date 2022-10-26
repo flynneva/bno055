@@ -11,7 +11,9 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="sensor" href="sensor.html" />
@@ -32,7 +34,7 @@
           <div class="body" role="main">
             
   <div class="section" id="module-bno055.registers">
-<span id="registers"></span><h1>registers<a class="headerlink" href="#module-bno055.registers" title="Permalink to this headline">¶</a></h1>
+<span id="registers"></span><h1>registers<a class="headerlink" href="#module-bno055.registers" title="Permalink to this heading">¶</a></h1>
 <dl class="py data">
 <dt class="sig sig-object py" id="bno055.registers.ACCEL_OFFSET_X_LSB_ADDR">
 <span class="sig-prename descclassname"><span class="pre">bno055.registers.</span></span><span class="sig-name descname"><span class="pre">ACCEL_OFFSET_X_LSB_ADDR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">85</span></em><a class="headerlink" href="#bno055.registers.ACCEL_OFFSET_X_LSB_ADDR" title="Permalink to this definition">¶</a></dt>
@@ -230,7 +232,37 @@ values taken from this ROS1 driver from octanis:
 <li class="toctree-l1"><a class="reference internal" href="error_handling.html">error_handling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="params.html">params</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sensor.html">sensor</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">registers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">registers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.ACCEL_OFFSET_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">ACCEL_OFFSET_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.ACCEL_RADIUS_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">ACCEL_RADIUS_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.AXIS_REMAP_X"><code class="docutils literal notranslate"><span class="pre">AXIS_REMAP_X</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_ACCEL_DATA_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_ACCEL_DATA_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_ADDRESS_A"><code class="docutils literal notranslate"><span class="pre">BNO055_ADDRESS_A</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_AXIS_MAP_CONFIG_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_AXIS_MAP_CONFIG_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_CALIB_STAT_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_CALIB_STAT_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_CHIP_ID_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_CHIP_ID_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_EULER_H_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_EULER_H_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_GRAVITY_DATA_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_GRAVITY_DATA_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_GYRO_DATA_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_GYRO_DATA_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_MAG_DATA_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_MAG_DATA_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_OPR_MODE_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_OPR_MODE_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_PAGE_ID_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_PAGE_ID_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_QUATERNION_DATA_W_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_QUATERNION_DATA_W_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_SIC_MATRIX_0_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_SIC_MATRIX_0_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_TEMP_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_TEMP_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.BNO055_UNIT_SEL_ADDR"><code class="docutils literal notranslate"><span class="pre">BNO055_UNIT_SEL_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.COM_START_BYTE_WR"><code class="docutils literal notranslate"><span class="pre">COM_START_BYTE_WR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.DEFAULT_OFFSET_ACC"><code class="docutils literal notranslate"><span class="pre">DEFAULT_OFFSET_ACC</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.DEFAULT_OFFSET_GYR"><code class="docutils literal notranslate"><span class="pre">DEFAULT_OFFSET_GYR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.DEFAULT_OFFSET_MAG"><code class="docutils literal notranslate"><span class="pre">DEFAULT_OFFSET_MAG</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.DEFAULT_VARIANCE_ACC"><code class="docutils literal notranslate"><span class="pre">DEFAULT_VARIANCE_ACC</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.GYRO_OFFSET_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">GYRO_OFFSET_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.MAG_OFFSET_X_LSB_ADDR"><code class="docutils literal notranslate"><span class="pre">MAG_OFFSET_X_LSB_ADDR</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.OPERATION_MODE_CONFIG"><code class="docutils literal notranslate"><span class="pre">OPERATION_MODE_CONFIG</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bno055.registers.POWER_MODE_NORMAL"><code class="docutils literal notranslate"><span class="pre">POWER_MODE_NORMAL</span></code></a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
@@ -250,7 +282,7 @@ values taken from this ROS1 driver from octanis:
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -267,7 +299,7 @@ values taken from this ROS1 driver from octanis:
       &copy;2021, Evan Flynn, Manfred Novotny.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.3.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
