@@ -1,0 +1,26 @@
+bno055:
+  ros__parameters:
+    ros_topic_prefix: "bno055/"
+    connection_type: "uart"
+    uart_port: "/dev/ttyUSB0"
+    uart_baudrate: 115200
+    uart_timeout: 0.1
+    data_query_frequency: 10
+    calib_status_frequency: 0.1
+    frame_id: "bno055"
+    operation_mode: 0x08
+    placement_axis_remap: "P1"
+    acc_factor: 100.0
+    mag_factor: 16000000.0
+    gyr_factor: 900.0
+    set_offsets: false # set to true to use offsets below
+    offset_acc: [0xFFEC, 0x00A5, 0xFFE8]
+    offset_mag: [0xFFB4, 0xFE9E, 0x027D]
+    offset_gyr: [0x0002, 0xFFFF, 0xFFFF]
+    ## Sensor standard deviation [x,y,z]
+    ## Used to calculate covariance matrices
+    ## defaults are used if parameters below are not provided
+    # variance_acc: [0.0, 0.0, 0.0] # [m/s^2]
+    # variance_angular_vel: [0.0, 0.0, 0.0] # [rad/s]
+    # variance_orientation: [0.0, 0.0, 0.0] # [rad]
+    # variance_mag: [0.0, 0.0, 0.0] # [Tesla]
