@@ -129,7 +129,7 @@ class SensorService:
 
         # Set Device mode
         device_mode = self.param.operation_mode.value
-        self.node.get_logger().info(f"Setting device_mode to {device_mode=}")
+        self.node.get_logger().info(f"Setting device_mode to {device_mode}")
 
         if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([device_mode]))):
             self.node.get_logger().warn('Unable to set IMU operation mode into operation mode.')
