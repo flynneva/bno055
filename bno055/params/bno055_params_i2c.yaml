@@ -25,23 +25,30 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
- 
-import os
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch_ros.actions import Node
-def generate_launch_description():
-    ld = LaunchDescription()
-    config = os.path.join(
-        get_package_share_directory('bno055'),
-        'config',
-        'bno055_params.yaml'
-        )
-        
-    node=Node(
-        package = 'bno055',
-        executable = 'bno055',
-        parameters = [config]
-    )
-    ld.add_action(node)
-    return ld
+
+# Example parameters for an I2C connection to the BNO055 motion sensor.
+bno055:
+  ros__parameters:
+    ros_topic_prefix: "bno055/"
+    connection_type: "i2c"
+    i2c_bus: 0
+    i2c_addr: 0x28
+    data_query_frequency: 100
+    calib_status_frequency: 0.1
+    frame_id: "bno055"
+    operation_mode: 0x0C
+    placement_axis_remap: "P2"
+    acc_factor: 100.0
+    mag_factor: 16000000.0
+    gyr_factor: 900.0
+    set_offsets: false # set to true to use offsets below
+    offset_acc: [0xFFEC, 0x00A5, 0xFFE8]
+    offset_mag: [0xFFB4, 0xFE9E, 0x027D]
+    offset_gyr: [0x0002, 0xFFFF, 0xFFFF]
+    ## Sensor standard deviation [x,y,z]
+    ## Used to calculate covariance matrices
+    ## defaults are used if parameters below are not provided
+    # variance_acc: [0.0, 0.0, 0.0] # [m/s^2]
+    # variance_angular_vel: [0.0, 0.0, 0.0] # [rad/s]
+    # variance_orientation: [0.0, 0.0, 0.0] # [rad]
+    # variance_mag: [0.0, 0.0, 0.0] # [Tesla]

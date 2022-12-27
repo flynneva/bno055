@@ -55,9 +55,9 @@ class NodeParameters:
         node.declare_parameter(name='ros_topic_prefix', value='bno055/')
         # The type of the sensor connection. Either "uart" or "i2c":
         node.declare_parameter(name='connection_type', value=I2C.CONNECTIONTYPE_I2C)
-        # UART port
+        # I2C bus number
         node.declare_parameter('i2c_bus', value=0)
-        # UART port
+        # I2C address
         node.declare_parameter('i2c_addr', value=0x28)
         # UART port
         node.declare_parameter('uart_port', value='/dev/ttyUSB0')
@@ -109,20 +109,24 @@ class NodeParameters:
             self.connection_type = node.get_parameter('connection_type')
             node.get_logger().info('\tconnection_type:\t"%s"' % self.connection_type.value)
 
-            self.i2c_bus = node.get_parameter('i2c_bus')
-            node.get_logger().info('\ti2c_bus:\t\t"%s"' % self.i2c_bus.value)
+            if self.connection_type == I2C.CONNECTIONTYPE_I2C:
 
-            self.i2c_addr = node.get_parameter('i2c_addr')
-            node.get_logger().info('\ti2c_addr:\t\t"%s"' % self.i2c_addr.value)
+                self.i2c_bus = node.get_parameter('i2c_bus')
+                node.get_logger().info('\ti2c_bus:\t\t"%s"' % self.i2c_bus.value)
 
-            self.uart_port = node.get_parameter('uart_port')
-            node.get_logger().info('\tuart_port:\t\t"%s"' % self.uart_port.value)
+                self.i2c_addr = node.get_parameter('i2c_addr')
+                node.get_logger().info('\ti2c_addr:\t\t"%s"' % self.i2c_addr.value)
 
-            self.uart_baudrate = node.get_parameter('uart_baudrate')
-            node.get_logger().info('\tuart_baudrate:\t\t"%s"' % self.uart_baudrate.value)
+            elif  self.connection_type == UART.CONNECTIONTYPE_UART:
 
-            self.uart_timeout = node.get_parameter('uart_timeout')
-            node.get_logger().info('\tuart_timeout:\t\t"%s"' % self.uart_timeout.value)
+                self.uart_port = node.get_parameter('uart_port')
+                node.get_logger().info('\tuart_port:\t\t"%s"' % self.uart_port.value)
+
+                self.uart_baudrate = node.get_parameter('uart_baudrate')
+                node.get_logger().info('\tuart_baudrate:\t\t"%s"' % self.uart_baudrate.value)
+
+                self.uart_timeout = node.get_parameter('uart_timeout')
+                node.get_logger().info('\tuart_timeout:\t\t"%s"' % self.uart_timeout.value)
 
             self.frame_id = node.get_parameter('frame_id')
             node.get_logger().info('\tframe_id:\t\t"%s"' % self.frame_id.value)

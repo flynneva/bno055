@@ -47,7 +47,7 @@ class I2C(Connector):
     def connect(self):
         returned_id = self.bus.read_byte_data(self.address, registers.BNO055_CHIP_ID_ADDR)
         if returned_id != registers.BNO055_ID:
-            raise TransmissionException('I2C not yet implemented')
+            raise TransmissionException('Could not get BNO055 chip ID via I2C')
 
     def read(self, reg_addr, length):
         buffer = bytearray()
