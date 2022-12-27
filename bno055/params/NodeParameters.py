@@ -54,7 +54,7 @@ class NodeParameters:
         # The topic prefix to use (can be empty if not required)
         node.declare_parameter(name='ros_topic_prefix', value='bno055/')
         # The type of the sensor connection. Either "uart" or "i2c":
-        node.declare_parameter(name='connection_type', value=I2C.CONNECTIONTYPE_I2C)
+        node.declare_parameter(name='connection_type', value=I2C.CONNECTIONTYPE_UART)
         # I2C bus number
         node.declare_parameter('i2c_bus', value=0)
         # I2C address
