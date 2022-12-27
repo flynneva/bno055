@@ -117,7 +117,7 @@ class NodeParameters:
                 self.i2c_addr = node.get_parameter('i2c_addr')
                 node.get_logger().info('\ti2c_addr:\t\t"%s"' % self.i2c_addr.value)
 
-            elif  self.connection_type == UART.CONNECTIONTYPE_UART:
+            elif self.connection_type == UART.CONNECTIONTYPE_UART:
 
                 self.uart_port = node.get_parameter('uart_port')
                 node.get_logger().info('\tuart_port:\t\t"%s"' % self.uart_port.value)
