@@ -77,7 +77,14 @@
     <span class="n">CONNECTIONTYPE_UART</span> <span class="o">=</span> <span class="s1">&#39;uart&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
-        <span class="c1"># Initialize parent class</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UART class.</span>
+<span class="sd">        </span>
+<span class="sd">        :param node: a ROS node</span>
+<span class="sd">        :param baudrate: baudrate to configure UART communication to</span>
+<span class="sd">        :param port: UART port to connect to</span>
+<span class="sd">        :param timeout: timeout to use</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
@@ -86,7 +93,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">serialConnection</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UART.connect"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.uart.UART.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Connect to the sensor.</span>
+<span class="sd">        </span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Opening serial port: &quot;</span><span class="si">%s</span><span class="s1">&quot;...&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -94,9 +105,15 @@
         <span class="k">except</span> <span class="n">serial</span><span class="o">.</span><span class="n">serialutil</span><span class="o">.</span><span class="n">SerialException</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Unable to connect to IMU at port &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Check to make sure your device is connected&#39;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_addr</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+<div class="viewcode-block" id="UART.read"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.uart.UART.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_addr</span><span class="p">,</span> <span class="n">length</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read data from sensor via UART.</span>
+
+<span class="sd">        :param reg_addr: The register address</span>
+<span class="sd">        :param length: The data length</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_START_BYTE_WR</span><span class="p">)</span>
         <span class="n">buf_out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">registers</span><span class="o">.</span><span class="n">COM_READ</span><span class="p">)</span>
@@ -146,14 +163,14 @@
         <span class="n">buf_in</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c1"># Return the received payload:</span>
-        <span class="k">return</span> <span class="n">buf_in</span>
+        <span class="k">return</span> <span class="n">buf_in</span></div>
 
 <div class="viewcode-block" id="UART.write"><a class="viewcode-back" href="../../../connectors.html#bno055.connectors.uart.UART.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg_addr</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transmit data packages to the sensor.</span>
+
 <span class="sd">        :param reg_addr: The register address</span>
 <span class="sd">        :param length: The data length</span>
-<span class="sd">        :param data: data to transmit</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">buf_out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>

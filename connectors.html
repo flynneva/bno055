@@ -48,13 +48,48 @@
 <dd><p>Bases: <a class="reference internal" href="#bno055.connectors.Connector.Connector" title="bno055.connectors.Connector.Connector"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connector</span></code></a></p>
 <p>Connector implementation for serial UART connection to the sensor.</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="bno055.connectors.uart.UART.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/uart.html#UART.connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.uart.UART.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to the sensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bno055.connectors.uart.UART.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/uart.html#UART.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.uart.UART.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read data from sensor via UART.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_addr</strong> – The register address</p></li>
+<li><p><strong>length</strong> – The data length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bno055.connectors.uart.UART.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reg_addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bno055/connectors/uart.html#UART.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bno055.connectors.uart.UART.write" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transmit data packages to the sensor.
-:param reg_addr: The register address
-:param length: The data length
-:param data: data to transmit
-:return:</p>
+<dd><p>Transmit data packages to the sensor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reg_addr</strong> – The register address</p></li>
+<li><p><strong>length</strong> – The data length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -84,6 +119,8 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">connectors</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bno055.connectors.Connector.Connector"><code class="docutils literal notranslate"><span class="pre">Connector</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bno055.connectors.uart.UART"><code class="docutils literal notranslate"><span class="pre">UART</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bno055.connectors.uart.UART.connect"><code class="docutils literal notranslate"><span class="pre">UART.connect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bno055.connectors.uart.UART.read"><code class="docutils literal notranslate"><span class="pre">UART.read()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#bno055.connectors.uart.UART.write"><code class="docutils literal notranslate"><span class="pre">UART.write()</span></code></a></li>
 </ul>
 </li>
