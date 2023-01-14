@@ -27,22 +27,47 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from bno055.connectors.Connector import Connector
+from smbus import SMBus
+
 from rclpy.node import Node
+
+from bno055 import registers
+from bno055.connectors.Connector import Connector
+from bno055.error_handling.exceptions import TransmissionException
 
 
 class I2C(Connector):
     CONNECTIONTYPE_I2C = 'i2c'
 
-    def __init__(self, node: Node):
-        # Initialize parent
+    def __init__(self, node: Node, i2c_bus=0, i2c_addr=registers.BNO055_ADDRESS_A):
         super().__init__(node)
+        self.bus = SMBus(i2c_bus)
+        self.address = i2c_addr
 
     def connect(self):
-        raise NotImplementedError('I2C not yet implemented')
+        returned_id = self.bus.read_byte_data(self.address, registers.BNO055_CHIP_ID_ADDR)
+        if returned_id != registers.BNO055_ID:
+            raise TransmissionException('Could not get BNO055 chip ID via I2C')
 
-    def read(self, numberOfBytes):
-        raise NotImplementedError('I2C not yet implemented')
+    def read(self, reg_addr, length):
+        buffer = bytearray()
+        bytes_left_to_read = length
+        while bytes_left_to_read > 0:
+            read_len = min(bytes_left_to_read, 32)
+            read_off = length - bytes_left_to_read
+            response = self.bus.read_i2c_block_data(
+                self.address, reg_addr + read_off, read_len)
+            buffer += bytearray(response)
+            bytes_left_to_read -= read_len
+        return buffer
 
-    def write(self, data: bytearray):
-        raise NotImplementedError('I2C not yet implemented')
+    def write(self, reg_addr, length, data: bytes):
+        bytes_left_to_write = length
+        while bytes_left_to_write > 0:
+            write_len = min(bytes_left_to_write, 32)
+            write_off = length - bytes_left_to_write
+            datablock = list(data[write_off : write_off + write_len])
+            self.bus.write_i2c_block_data(
+                self.address, reg_addr + write_off, datablock)
+            bytes_left_to_write -= write_len
+        return True

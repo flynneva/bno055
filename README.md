@@ -42,7 +42,14 @@ ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno05
 - **uart_port**: The UART port to use; default='/dev/ttyUSB0'
 - **uart_baudrate**: The baud rate to use; default=115200
 - **uart_timeout**: The timeout for UART transmissions in seconds to use; default=0.1
+
+### I2C Connection
+
+- **connection_type=i2c**: Defines I2C as sensor connection type; default='uart'
+- **i2c_bus**: The integer I2C bus number to use; default=0
+- **i2c_address**: The hexadecimal I2C address to use; default=0x28
   
+
 ### Sensor Configuration
 
 - **frame_id**: coordinate frame id of sensor default='bno055'

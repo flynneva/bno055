@@ -26,18 +26,18 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Example parameters for an I2C connection to the BNO055 motion sensor.
 bno055:
   ros__parameters:
     ros_topic_prefix: "bno055/"
-    connection_type: "uart"
-    uart_port: "/dev/ttyUSB0"
-    uart_baudrate: 115200
-    uart_timeout: 0.1
-    data_query_frequency: 10
+    connection_type: "i2c"
+    i2c_bus: 0
+    i2c_addr: 0x28
+    data_query_frequency: 100
     calib_status_frequency: 0.1
     frame_id: "bno055"
-    operation_mode: 0x08
-    placement_axis_remap: "P1"
+    operation_mode: 0x0C
+    placement_axis_remap: "P2"
     acc_factor: 100.0
     mag_factor: 16000000.0
     gyr_factor: 900.0
