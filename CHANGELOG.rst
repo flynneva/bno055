@@ -2,7 +2,48 @@
 Changelog for package bno055
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.4.0
+-----------
+* Update CHANGELOG for new release
+* Improve the doc strings for the connectors
+* Add I2C implementation (`#52 <https://github.com/flynneva/bno055/issues/52>`_)
+  * Add I2C implementation
+  * Updates after review
+  * Revert one file change
+  * Add newline
+  * Revert to UART as default
+  * Fix typo
+  * nit
+* Merge pull request `#50 <https://github.com/flynneva/bno055/issues/50>`_ from flynneva/fix-invalid-log-print
+  Fix invalid log string variable expansion
+* Update CI to include Humble
+* Fix invalid log string variable expansion
+* Merge pull request `#49 <https://github.com/flynneva/bno055/issues/49>`_ from sjev/operation_mode
+* add device mode setting
+* Contributors: Andrew Symington, Evan Flynn, Jev Kuznetsov
+
 Forthcoming
+-----------
+* Bump version for new release
+* Update CHANGELOG for new release
+* Improve the doc strings for the connectors
+* Add I2C implementation (`#52 <https://github.com/flynneva/bno055/issues/52>`_)
+  * Add I2C implementation
+  * Updates after review
+  * Revert one file change
+  * Add newline
+  * Revert to UART as default
+  * Fix typo
+  * nit
+* Merge pull request `#50 <https://github.com/flynneva/bno055/issues/50>`_ from flynneva/fix-invalid-log-print
+  Fix invalid log string variable expansion
+* Update CI to include Humble
+* Fix invalid log string variable expansion
+* Merge pull request `#49 <https://github.com/flynneva/bno055/issues/49>`_ from sjev/operation_mode
+* add device mode setting
+* Contributors: Andrew Symington, Evan Flynn, Jev Kuznetsov
+
+0.3.0
 -----------
 * Merge pull request `#43 <https://github.com/flynneva/bno055/issues/43>`_ from flynneva/develop
   bring over updates
