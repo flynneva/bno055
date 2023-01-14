@@ -45,7 +45,14 @@ class UART(Connector):
     CONNECTIONTYPE_UART = 'uart'
 
     def __init__(self, node: Node, baudrate, port, timeout):
-        # Initialize parent class
+        """Initialize the UART class.
+        
+        :param node: a ROS node
+        :param baudrate: baudrate to configure UART communication to
+        :param port: UART port to connect to
+        :param timeout: timeout to use
+        :return:
+        """
         super().__init__(node)
 
         self.node = node
@@ -55,6 +62,10 @@ class UART(Connector):
         self.serialConnection = None
 
     def connect(self):
+        """Connect to the sensor.
+        
+        :return:
+        """
         self.node.get_logger().info('Opening serial port: "%s"...' % self.port)
 
         try:
@@ -65,6 +76,12 @@ class UART(Connector):
             sys.exit(1)
 
     def read(self, reg_addr, length):
+        """Read data from sensor via UART.
+
+        :param reg_addr: The register address
+        :param length: The data length
+        :return:
+        """
         buf_out = bytearray()
         buf_out.append(registers.COM_START_BYTE_WR)
         buf_out.append(registers.COM_READ)
@@ -119,9 +136,9 @@ class UART(Connector):
     def write(self, reg_addr, length, data: bytes):
         """
         Transmit data packages to the sensor.
+
         :param reg_addr: The register address
         :param length: The data length
-        :param data: data to transmit
         :return:
         """
         buf_out = bytearray()

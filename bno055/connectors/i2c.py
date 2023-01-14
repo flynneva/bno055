@@ -37,19 +37,38 @@ from bno055.error_handling.exceptions import TransmissionException
 
 
 class I2C(Connector):
+    """Connector implementation for I2C connection to the sensor."""
+
     CONNECTIONTYPE_I2C = 'i2c'
 
     def __init__(self, node: Node, i2c_bus=0, i2c_addr=registers.BNO055_ADDRESS_A):
+        """Initialize the I2C class.
+        
+        :param node: a ROS node
+        :param i2c_bus: I2C bus to use
+        :param i2c_addr: I2C address to connect to
+        :return:
+        """
         super().__init__(node)
         self.bus = SMBus(i2c_bus)
         self.address = i2c_addr
 
     def connect(self):
+        """Connect to the sensor
+        
+        :return:
+        """
         returned_id = self.bus.read_byte_data(self.address, registers.BNO055_CHIP_ID_ADDR)
         if returned_id != registers.BNO055_ID:
             raise TransmissionException('Could not get BNO055 chip ID via I2C')
 
     def read(self, reg_addr, length):
+        """Read data from sensor via I2C.
+
+        :param reg_addr: The register address
+        :param length: The data length
+        :return:
+        """
         buffer = bytearray()
         bytes_left_to_read = length
         while bytes_left_to_read > 0:
@@ -62,6 +81,13 @@ class I2C(Connector):
         return buffer
 
     def write(self, reg_addr, length, data: bytes):
+        """Write data to sensor via I2C.
+        
+        :param reg_addr: The register address
+        :param length: The data length
+        :param data: data to transmit
+        :return:
+        """
         bytes_left_to_write = length
         while bytes_left_to_write > 0:
             write_len = min(bytes_left_to_write, 32)
