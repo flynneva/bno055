@@ -2,49 +2,28 @@
 Changelog for package bno055
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-0.4.0
------------
-* Update CHANGELOG for new release
-* Improve the doc strings for the connectors
-* Add I2C implementation (`#52 <https://github.com/flynneva/bno055/issues/52>`_)
-  * Add I2C implementation
-  * Updates after review
-  * Revert one file change
-  * Add newline
-  * Revert to UART as default
-  * Fix typo
-  * nit
-* Merge pull request `#50 <https://github.com/flynneva/bno055/issues/50>`_ from flynneva/fix-invalid-log-print
-  Fix invalid log string variable expansion
-* Update CI to include Humble
-* Fix invalid log string variable expansion
-* Merge pull request `#49 <https://github.com/flynneva/bno055/issues/49>`_ from sjev/operation_mode
-* add device mode setting
-* Contributors: Andrew Symington, Evan Flynn, Jev Kuznetsov
+0.4.1 (2023-01-15)
+------------------
+* Update CHANGELOG
+* Bump patch version after small bug fix
+* Fix i2c issues found (param and division by zero) (`#56 <https://github.com/flynneva/bno055/issues/56>`_)
 
-Forthcoming
------------
+0.4.0 (2023-01-13)
+------------------
 * Bump version for new release
 * Update CHANGELOG for new release
 * Improve the doc strings for the connectors
 * Add I2C implementation (`#52 <https://github.com/flynneva/bno055/issues/52>`_)
-  * Add I2C implementation
-  * Updates after review
-  * Revert one file change
-  * Add newline
-  * Revert to UART as default
-  * Fix typo
-  * nit
 * Merge pull request `#50 <https://github.com/flynneva/bno055/issues/50>`_ from flynneva/fix-invalid-log-print
   Fix invalid log string variable expansion
 * Update CI to include Humble
 * Fix invalid log string variable expansion
 * Merge pull request `#49 <https://github.com/flynneva/bno055/issues/49>`_ from sjev/operation_mode
 * add device mode setting
-* Contributors: Andrew Symington, Evan Flynn, Jev Kuznetsov
+* Contributors: Andrew Symington, Evan Flynn, Jev 
 
-0.3.0
------------
+0.3.0 (2022-03-22)
+------------------
 * Merge pull request `#43 <https://github.com/flynneva/bno055/issues/43>`_ from flynneva/develop
   bring over updates
 * Merge pull request `#44 <https://github.com/flynneva/bno055/issues/44>`_ from Towflos/develop
