@@ -182,7 +182,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">serialConnection</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf_out</span><span class="p">)</span>
-            <span class="n">buf_in</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialConnection</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">buf_in</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serialConnection</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa: B902</span>
             <span class="k">return</span> <span class="kc">False</span>
 
