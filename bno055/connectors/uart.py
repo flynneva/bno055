@@ -150,7 +150,7 @@ class UART(Connector):
 
         try:
             self.serialConnection.write(buf_out)
-            buf_in = bytearray(self.serialConnection.read())
+            buf_in = bytearray(self.serialConnection.read(2))
         except Exception:  # noqa: B902
             return False
 
