@@ -142,11 +142,11 @@ Run launch file:
 
 ### Performing flake8 Linting
 
-To perform code linting with [flake8](https://gitlab.com/pycqa/flake8) just perform:
+To perform code linting with [flake8](https://gitlab.com/pycqa/flake8), just perform:
 
     cd ~/ros2_ws/src/bno055
     ament_flake8
 
 See [www.flake8rules.com](https://www.flake8rules.com/) for more detailed information about flake8 rules.
 
-**Note:** we take advantage of [flake8's noqa mechanisim](https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html) to selectively ignore some errors. Just search for `# noqa:` in the source code to find them.
+**Note:** We take advantage of [flake8's noqa mechanisim](https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html) to selectively ignore some errors. Just search for `# noqa:` in the source code to find them.
