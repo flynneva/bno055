@@ -81,6 +81,8 @@ class NodeParameters:
         node.declare_parameter('mag_factor', value=16000000.0)
         # scaling factor for gyroscope
         node.declare_parameter('gyr_factor', value=900.0)
+        # scaling factor for gyroscope
+        node.declare_parameter('grav_factor', value=100.0)
         # determines whether to use default offsets or not
         node.declare_parameter('set_offsets', value=False)
         # +/- 2000 units (at max 2G) (1 unit = 1 mg = 1 LSB = 0.01 m/s2)
@@ -154,6 +156,9 @@ class NodeParameters:
 
             self.gyr_factor = node.get_parameter('gyr_factor')
             node.get_logger().info('\tgyr_factor:\t\t"%s"' % self.gyr_factor.value)
+
+            self.grav_factor = node.get_parameter('grav_factor')
+            node.get_logger().info('\tgrav_factor:\t\t"%s"' % self.grav_factor.value)
 
             self.set_offsets = node.get_parameter('set_offsets')
             node.get_logger().info('\tset_offsets:\t\t"%s"' % self.set_offsets.value)

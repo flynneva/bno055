@@ -35,7 +35,7 @@ from bno055 import registers
 from bno055.connectors.Connector import Connector
 from bno055.params.NodeParameters import NodeParameters
 
-from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Quaternion, Vector3
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from sensor_msgs.msg import Imu, MagneticField, Temperature
@@ -58,6 +58,7 @@ class SensorService:
         self.pub_imu_raw = node.create_publisher(Imu, prefix + 'imu_raw', QoSProf)
         self.pub_imu = node.create_publisher(Imu, prefix + 'imu', QoSProf)
         self.pub_mag = node.create_publisher(MagneticField, prefix + 'mag', QoSProf)
+        self.pub_grav = node.create_publisher(Vector3, prefix + 'grav', QoSProf)
         self.pub_temp = node.create_publisher(Temperature, prefix + 'temp', QoSProf)
         self.pub_calib_status = node.create_publisher(String, prefix + 'calib_status', QoSProf)
         self.srv = self.node.create_service(Trigger, prefix + 'calibration_request', self.calibration_request_callback)
@@ -142,6 +143,7 @@ class SensorService:
         imu_raw_msg = Imu()
         imu_msg = Imu()
         mag_msg = MagneticField()
+        grav_msg = Vector3()
         temp_msg = Temperature()
 
         # read from sensor
@@ -237,6 +239,14 @@ class SensorService:
             0.0, 0.0, self.param.variance_mag.value[2]
         ]
         self.pub_mag.publish(mag_msg)
+
+        grav_msg.x = \
+            self.unpackBytesToFloat(buf[38], buf[39]) / self.param.grav_factor.value
+        grav_msg.y = \
+            self.unpackBytesToFloat(buf[40], buf[41]) / self.param.grav_factor.value
+        grav_msg.z = \
+            self.unpackBytesToFloat(buf[42], buf[43]) / self.param.grav_factor.value
+        self.pub_grav.publish(grav_msg)
 
         # Publish temperature
         temp_msg.header.stamp = self.node.get_clock().now().to_msg()
