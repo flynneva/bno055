@@ -30,6 +30,10 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
+
+respawn_delay = 2.0
+shutdown_time = 3.0   # to shutdown the launch service, so that the process only respawn once
+expected_called_count = 2   # normal exit and respawn exit
 def generate_launch_description():
     ld = LaunchDescription()
     config = os.path.join(
@@ -41,7 +45,10 @@ def generate_launch_description():
     node=Node(
         package = 'bno055',
         executable = 'bno055',
-        parameters = [config]
+        parameters = [config],
+        respawn = True,
+        respawn_delay = respawn_delay
+        
     )
     ld.add_action(node)
     return ld

@@ -31,13 +31,13 @@ bno055:
   ros__parameters:
     ros_topic_prefix: "bno055/"
     connection_type: "uart"
-    uart_port: "/dev/ttyUSB0"
+    uart_port: "/dev/imu"
     uart_baudrate: 115200
     uart_timeout: 0.1
     data_query_frequency: 100
     calib_status_frequency: 0.1
-    frame_id: "bno055"
-    operation_mode: 0x0C
+    frame_id: "imu_link"
+    operation_mode: 0x08 #0x0C
     placement_axis_remap: "P2"
     acc_factor: 100.0
     mag_factor: 16000000.0
