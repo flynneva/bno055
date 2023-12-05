@@ -25,24 +25,46 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-
+from abc import ABC, abstractclassmethod
+from enum import Enum
+from pydantic import BaseModel, ConfigDict
 
 from rclpy.node import Node
 
 
-class Connector:
+class ConnectorType(Enum):
+    I2C = "i2c"
+    UART = "uart"
+
+
+class Connector(BaseModel, ABC):
     """
     Parent class for bno055 connectors.
 
     This class does NOT contain protocol-specific code for UART, I2C, etc.
     """
+    # To allow for Node type attribute
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(self, node: Node):
-        self.node = node
+    node: Node
+    type: ConnectorType
 
-    def receive(self, reg_addr, length):
+    @property
+    @abstractclassmethod
+    def read(self, reg_addr, length: int) -> bytearray:
+        """
+        Read the given length of memory starting at the given register address.
+
+        Required to be overridden by inheriting classes of this base class.
+
+        :param reg_addr: The register address
+        :param length: The data length
+        :return: bytearray of the read data
+        """
+        raise NotImplementedError()
+
+    def receive(self, reg_addr, length: int) -> bytearray:
         return self.read(reg_addr, length)
 
-    def transmit(self, reg_addr, length, data: bytes):
+    def transmit(self, reg_addr, length: int, data: bytes):
         return self.write(reg_addr, length, data)

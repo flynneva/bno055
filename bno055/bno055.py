@@ -30,6 +30,7 @@
 import sys
 import threading
 
+from bno055.connectors.Connector import ConnectorType
 from bno055.connectors.i2c import I2C
 from bno055.connectors.uart import UART
 from bno055.error_handling.exceptions import BusOverRunException
@@ -60,15 +61,16 @@ class Bno055Node(Node):
         self.param = NodeParameters(self)
 
         # Get connector according to configured sensor connection type:
-        if self.param.connection_type.value == UART.CONNECTIONTYPE_UART:
-            connector = UART(self,
-                             self.param.uart_baudrate.value,
-                             self.param.uart_port.value,
-                             self.param.uart_timeout.value)
-        elif self.param.connection_type.value == I2C.CONNECTIONTYPE_I2C:
-            connector = I2C(self,
-                            self.param.i2c_bus.value,
-                            self.param.i2c_addr.value)
+        if self.param.connection_type.value == ConnectorType.UART.value :
+            connector = UART(node=self,
+                             baudrate=self.param.uart_baudrate.value,
+                             port=self.param.uart_port.value,
+                             timeout=self.param.uart_timeout.value)
+        elif self.param.connection_type.value == ConnectorType.UART.value:
+            connector = I2C(
+                            node=self,
+                            i2c_bus=self.param.i2c_bus.value,
+                            i2c_addr=self.param.i2c_addr.value)
         else:
             raise NotImplementedError('Unsupported connection type: '
                                       + str(self.param.connection_type.value))

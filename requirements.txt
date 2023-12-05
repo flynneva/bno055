@@ -2,3 +2,5 @@
 
 # bno055/bno055/connectors/uart.py: 36
 pyserial == 3.4
+
+pydantic == 1.10.7

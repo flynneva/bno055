@@ -25,33 +25,32 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-
+from typing import Literal, Union
 from smbus import SMBus
 
 from rclpy.node import Node
 
 from bno055 import registers
-from bno055.connectors.Connector import Connector
+from bno055.connectors.Connector import Connector, ConnectorType
 from bno055.error_handling.exceptions import TransmissionException
 
 
 class I2C(Connector):
     """Connector implementation for I2C connection to the sensor."""
 
-    CONNECTIONTYPE_I2C = 'i2c'
+    node: Node
+    type: ConnectorType = ConnectorType.I2C
 
-    def __init__(self, node: Node, i2c_bus=0, i2c_addr=registers.BNO055_ADDRESS_A):
-        """Initialize the I2C class.
-        
-        :param node: a ROS node
-        :param i2c_bus: I2C bus to use
-        :param i2c_addr: I2C address to connect to
-        :return:
-        """
-        super().__init__(node)
-        self.bus = SMBus(i2c_bus)
-        self.address = i2c_addr
+    address: Literal
+
+    bus: Union[int, SMBus]
+    address: int
+
+    def validate_bus(cls, value):
+        bus = value
+        if isinstance(bus, int):
+            bus = SMBus(value)
+        return bus
 
     def connect(self):
         """Connect to the sensor

@@ -36,30 +36,18 @@ from rclpy.node import Node
 
 from bno055 import registers
 from bno055.error_handling.exceptions import BusOverRunException, TransmissionException
-from bno055.connectors.Connector import Connector
+from bno055.connectors.Connector import Connector, ConnectorType
 
 
 class UART(Connector):
     """Connector implementation for serial UART connection to the sensor."""
 
-    CONNECTIONTYPE_UART = 'uart'
+    node: Node
+    type: ConnectorType = ConnectorType.UART
+    baudrate: int
+    port: str
+    timeout: float
 
-    def __init__(self, node: Node, baudrate, port, timeout):
-        """Initialize the UART class.
-        
-        :param node: a ROS node
-        :param baudrate: baudrate to configure UART communication to
-        :param port: UART port to connect to
-        :param timeout: timeout to use
-        :return:
-        """
-        super().__init__(node)
-
-        self.node = node
-        self.baudrate = baudrate
-        self.port = port
-        self.timeout = timeout
-        self.serialConnection = None
 
     def connect(self):
         """Connect to the sensor.
