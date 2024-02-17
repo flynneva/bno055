@@ -2,6 +2,18 @@
 Changelog for package bno055
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.5.0 (2024-02-17)
+------------------
+* Bump to 0.5.0 to prep for release
+* Added Gravity publisher (`#64 <https://github.com/flynneva/bno055/issues/64>`_)
+  * Added Gravity publisher
+  * Updated Readme to introduce Gravity publisher
+* Spelling/Grammar (`#62 <https://github.com/flynneva/bno055/issues/62>`_)
+* Fix uart write answer reading (`#57 <https://github.com/flynneva/bno055/issues/57>`_)
+* Update package.xml to include smbus dependency (`#58 <https://github.com/flynneva/bno055/issues/58>`_)
+* fix build error on foxy that caused by typo (`#59 <https://github.com/flynneva/bno055/issues/59>`_)
+* Contributors: Andrew Symington, Burak Guler, Combinatrix, Evan Flynn, Vintheruler1, emilnovak
+
 0.4.1 (2023-01-15)
 ------------------
 * Update CHANGELOG
