@@ -207,12 +207,15 @@ class SensorService:
 
         imu_msg.orientation_covariance = imu_raw_msg.orientation_covariance
 
-        imu_msg.linear_acceleration.x = \
-            self.unpackBytesToFloat(buf[32], buf[33]) / self.param.acc_factor.value
-        imu_msg.linear_acceleration.y = \
-            self.unpackBytesToFloat(buf[34], buf[35]) / self.param.acc_factor.value
-        imu_msg.linear_acceleration.z = \
-            self.unpackBytesToFloat(buf[36], buf[37]) / self.param.acc_factor.value
+        if self.param.publish_raw_accel.value:
+            imu_msg.linear_acceleration = imu_raw_msg.linear_acceleration
+        else:
+            imu_msg.linear_acceleration.x = \
+                self.unpackBytesToFloat(buf[32], buf[33]) / self.param.acc_factor.value
+            imu_msg.linear_acceleration.y = \
+                self.unpackBytesToFloat(buf[34], buf[35]) / self.param.acc_factor.value
+            imu_msg.linear_acceleration.z = \
+                self.unpackBytesToFloat(buf[36], buf[37]) / self.param.acc_factor.value
         imu_msg.linear_acceleration_covariance = imu_raw_msg.linear_acceleration_covariance
         imu_msg.angular_velocity.x = \
             self.unpackBytesToFloat(buf[12], buf[13]) / self.param.gyr_factor.value

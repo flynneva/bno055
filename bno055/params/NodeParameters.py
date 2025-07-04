@@ -75,6 +75,8 @@ class NodeParameters:
         node.declare_parameter('operation_mode', value=0x0C)
         # placement_axis_remap defines the position and orientation of the sensor mount
         node.declare_parameter('placement_axis_remap', value='P1')
+        # Publish raw accelerations?
+        node.declare_parameter('publish_raw_accel', value=False)
         # scaling factor for acceleration
         node.declare_parameter('acc_factor', value=100.0)
         # scaling factor for magnetometer
@@ -147,6 +149,9 @@ class NodeParameters:
             self.placement_axis_remap = node.get_parameter('placement_axis_remap')
             node.get_logger().info('\tplacement_axis_remap:\t"%s"'
                                    % self.placement_axis_remap.value)
+
+            self.publish_raw_accel = node.get_parameter('publish_raw_accel')
+            node.get_logger().info('\tpublish_raw_accel:\t"%s"' % self.publish_raw_accel.value)
 
             self.acc_factor = node.get_parameter('acc_factor')
             node.get_logger().info('\tacc_factor:\t\t"%s"' % self.acc_factor.value)

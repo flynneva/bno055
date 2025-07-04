@@ -39,6 +39,7 @@ bno055:
     frame_id: "bno055"
     operation_mode: 0x0C
     placement_axis_remap: "P2"
+    publish_raw_accel: false
     acc_factor: 100.0
     mag_factor: 16000000.0
     gyr_factor: 900.0

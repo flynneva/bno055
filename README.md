@@ -58,6 +58,7 @@ ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno05
 - **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=0.1 Hz
 - **placement_axis_remap**: The sensor placement configuration (Axis remapping) defines the position and orientation of the sensor mount.
 See Bosch BNO055 datasheet section "Axis Remap" for valid positions: "P0", "P1" (default), "P2", "P3", "P4", "P5", "P6", "P7".   
+- **publish_raw_accel**: set to true to publish raw accelerations in the '/bno055/imu' topic (see below); default=false.
 
 ### ROS Topic Prefix
 
