@@ -31,18 +31,18 @@ bno055:
   ros__parameters:
     ros_topic_prefix: "bno055/"
     connection_type: "i2c"
-    i2c_bus: 0
-    i2c_addr: 0x28
+    i2c_bus: 1
+    i2c_addr: [0x29,0x28]  # GY-85 clone with both jumpers closed - 0x29, Adafruit BNO055 - 0x28
     data_query_frequency: 100
-    calib_status_frequency: 0.1
-    frame_id: "bno055"
-    operation_mode: 0x0C
+    calib_status_frequency: 1.0
+    frame_id: "imu_link"
+    operation_mode: 0x0C    # OPERATION_MODE_NDOF (with FMC)
     placement_axis_remap: "P2"
     acc_factor: 100.0
-    mag_factor: 16000000.0
-    gyr_factor: 900.0
-    grav_factor: 100.0
-    set_offsets: false # set to true to use offsets below
+    mag_factor: 16000000.0  # 16 million LSB per Tesla, as per datasheet
+    gyr_factor:  900.0      # scaling factor for gyroscope
+    grav_factor: 100.0      # scaling factor for gravity vector
+    set_offsets: false      # set to true to use offsets below
     offset_acc: [0xFFEC, 0x00A5, 0xFFE8]
     offset_mag: [0xFFB4, 0xFE9E, 0x027D]
     offset_gyr: [0x0002, 0xFFFF, 0xFFFF]

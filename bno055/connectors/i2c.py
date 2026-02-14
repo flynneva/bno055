@@ -27,7 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from smbus import SMBus
+from smbus2 import SMBus
 
 from rclpy.node import Node
 
@@ -41,26 +41,42 @@ class I2C(Connector):
 
     CONNECTIONTYPE_I2C = 'i2c'
 
-    def __init__(self, node: Node, i2c_bus=0, i2c_addr=registers.BNO055_ADDRESS_A):
+    def __init__(self, node: Node, i2c_bus=0, i2c_addresses=[registers.BNO055_ADDRESS_A, registers.BNO055_ADDRESS_B]):
         """Initialize the I2C class.
         
         :param node: a ROS node
         :param i2c_bus: I2C bus to use
-        :param i2c_addr: I2C address to connect to
+        :param i2c_addresses: candidate I2C addresses to connect to
         :return:
         """
         super().__init__(node)
+
+        self.i2c_addresses = i2c_addresses
+
         self.bus = SMBus(i2c_bus)
-        self.address = i2c_addr
+        self.address = None
+
 
     def connect(self):
         """Connect to the sensor
         
         :return:
         """
-        returned_id = self.bus.read_byte_data(self.address, registers.BNO055_CHIP_ID_ADDR)
-        if returned_id != registers.BNO055_ID:
-            raise TransmissionException('Could not get BNO055 chip ID via I2C')
+        for addr in self.i2c_addresses:
+            try:
+                self.node.get_logger().info(f"IP: trying I2C address: 0x{addr: 02x}")
+                returned_id = self.bus.read_byte_data(addr, registers.BNO055_CHIP_ID_ADDR)
+                if returned_id == registers.BNO055_ID:
+                    self.address = addr
+                    self.node.get_logger().info(f"   address: 0x{self.address: 02x}  chip ID: 0x{returned_id: 02x} ✓ (connected)")
+                    break
+            except Exception as e:
+                self.node.get_logger().info(f"   i2c address 0x{addr: 02x} failed to connect")
+                continue
+
+        if self.address is None:
+            self.node.get_logger().error(f"Could not connect to BNO055 via I2C. Tried addresses: {[f'0x{addr: 02x}' for addr in self.i2c_addresses]}")
+
 
     def read(self, reg_addr, length):
         """Read data from sensor via I2C.
@@ -79,6 +95,7 @@ class I2C(Connector):
             buffer += bytearray(response)
             bytes_left_to_read -= read_len
         return buffer
+
 
     def write(self, reg_addr, length, data: bytes):
         """Write data to sensor via I2C.

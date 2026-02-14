@@ -58,7 +58,7 @@ class NodeParameters:
         # I2C bus number
         node.declare_parameter('i2c_bus', value=0)
         # I2C address
-        node.declare_parameter('i2c_addr', value=0x28)
+        node.declare_parameter('i2c_addr', value=[0x28, 0x29])  # Adafruit - 0x28, GY Clone - 0x29 (with both jumpers closed)
         # UART port
         node.declare_parameter('uart_port', value='/dev/ttyUSB0')
         # UART Baud Rate
@@ -70,15 +70,15 @@ class NodeParameters:
         # Node timer frequency in Hz, defining how often sensor data is requested
         node.declare_parameter('data_query_frequency', value=10)
         # Node timer frequency in Hz, defining how often calibration status data is requested
-        node.declare_parameter('calib_status_frequency', value=0.1)
+        node.declare_parameter('calib_status_frequency', value=1.0)
         # sensor operation mode
-        node.declare_parameter('operation_mode', value=0x0C)
+        node.declare_parameter('operation_mode', value=0x0C)    # default: OPERATION_MODE_NDOF (with FMC)
         # placement_axis_remap defines the position and orientation of the sensor mount
         node.declare_parameter('placement_axis_remap', value='P1')
         # scaling factor for acceleration
         node.declare_parameter('acc_factor', value=100.0)
         # scaling factor for magnetometer
-        node.declare_parameter('mag_factor', value=16000000.0)
+        node.declare_parameter('mag_factor', value=16000000.0)  # 16 million LSB per Tesla, as per datasheet
         # scaling factor for gyroscope
         node.declare_parameter('gyr_factor', value=900.0)
         # scaling factor for gyroscope
@@ -116,8 +116,8 @@ class NodeParameters:
                 self.i2c_bus = node.get_parameter('i2c_bus')
                 node.get_logger().info('\ti2c_bus:\t\t"%s"' % self.i2c_bus.value)
 
-                self.i2c_addr = node.get_parameter('i2c_addr')
-                node.get_logger().info('\ti2c_addr:\t\t"%s"' % self.i2c_addr.value)
+                self.i2c_addr = node.get_parameter('i2c_addr')  # INTEGER_ARRAY, e.g. [0x28, 0x29] for Adafruit BNO055 and GY-85 clone with both jumpers closed
+                node.get_logger().info('\ti2c_addr:\t\t"%s"' % ['0x%02x' % addr for addr in self.i2c_addr.value])
 
             elif self.connection_type.value == UART.CONNECTIONTYPE_UART:
 
@@ -152,7 +152,7 @@ class NodeParameters:
             node.get_logger().info('\tacc_factor:\t\t"%s"' % self.acc_factor.value)
 
             self.mag_factor = node.get_parameter('mag_factor')
-            node.get_logger().info('\tmag_factor:\t\t"%s"' % self.mag_factor.value)
+            node.get_logger().info('\tmag_factor:\t\t"%s"' % self.mag_factor.value)  # 16 million LSB per Tesla, as per datasheet
 
             self.gyr_factor = node.get_parameter('gyr_factor')
             node.get_logger().info('\tgyr_factor:\t\t"%s"' % self.gyr_factor.value)

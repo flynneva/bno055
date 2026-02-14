@@ -1,3 +1,21 @@
+------------------------
+
+**Note:** this fork fixes the "*data spiking*" issue and uses *smbus2* instead of *smbus* for I2C communication. There's some code optimization and refactoring.
+
+Please see [this guide](https://github.com/slgrobotics/robots_bringup/blob/main/Docs/Sensors/BNO055%20IMU.md#issues-when-using-the-standard-ros-2-driver) for details.
+
+**Note changes in parameters:**
+- `i2c_bus`: The integer I2C bus number to use; default=0     - Raspberry Pi mostly uses bus=1
+- `i2c_address`: The hexadecimal I2C addresses to use; default=[0x28,0x29]   - now will try addresses from a list
+
+**Look for examples** in [launch](https://github.com/slgrobotics/bno055/tree/main/launch) folder
+
+------------------------
+
+Original README follows:
+
+------------------------
+
 # A BNO05 ROS2 Package 
 
 ## Description
@@ -47,7 +65,7 @@ ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno05
 
 - **connection_type=i2c**: Defines I2C as sensor connection type; default='uart'
 - **i2c_bus**: The integer I2C bus number to use; default=0
-- **i2c_address**: The hexadecimal I2C address to use; default=0x28
+- **i2c_address**: The hexadecimal I2C addresses to use; default=[0x28,0x29]
   
 
 ### Sensor Configuration
@@ -55,7 +73,7 @@ ros2 run bno055 bno055 --ros-args --params-file ./src/bno055/bno055/params/bno05
 - **frame_id**: coordinate frame id of sensor default='bno055'
 - **baudrate**: baudrate of sensor default=115200
 - **data_query_frequency**: frequency (HZ) to read and publish data from sensor; default=100 Hz
-- **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=0.1 Hz
+- **calib_status_frequency**: frequency (HZ) to read and publish calibration status data from sensor; default=1.0 Hz
 - **placement_axis_remap**: The sensor placement configuration (Axis remapping) defines the position and orientation of the sensor mount.
 See Bosch BNO055 datasheet section "Axis Remap" for valid positions: "P0", "P1" (default), "P2", "P3", "P4", "P5", "P6", "P7".   
 

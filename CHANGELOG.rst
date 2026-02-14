@@ -1,6 +1,13 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Changelog for package bno055
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+0.5.1 (2026-02-12)
+------------------
+* Bump to 0.5.1 to prep for release
+* Optimized get_sensor_data() for speed, only publish necessary topics based on operation mode
+* Parameter i2c_address: The hexadecimal I2C addresses to use; default=[0x28,0x29] - now will try addresses from a list
+* Added launch files for raw data and imu_tools madgwick filter, and one to avoid config file inclusion.
+* Contributors: Sergei Grichine
 
 0.5.0 (2024-02-17)
 ------------------
