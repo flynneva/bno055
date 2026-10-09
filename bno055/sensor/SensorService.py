@@ -28,7 +28,6 @@
 import json
 from math import sqrt
 import struct
-import sys
 from time import sleep
 
 from bno055 import registers
@@ -72,10 +71,9 @@ class SensorService:
                 raise IOError('Device ID=%s is incorrect' % data)
             # print("device sent ", binascii.hexlify(data))
         except Exception as e:  # noqa: B902
-            # This is the first communication - exit if it does not work
-            self.node.get_logger().error('Communication error: %s' % e)
-            self.node.get_logger().error('Shutting down ROS node...')
-            sys.exit(1)
+            # first communication: raise so the caller can retry, because a sensor that
+            # has just had its port reset needs about a second before it answers
+            raise ConnectionError('BNO055 did not answer the chip-ID read: %s' % e)
 
         # IMU connected => apply IMU Configuration:
         if not (self.con.transmit(registers.BNO055_OPR_MODE_ADDR, 1, bytes([registers.OPERATION_MODE_CONFIG]))):

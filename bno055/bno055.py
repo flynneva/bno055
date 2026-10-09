@@ -29,6 +29,7 @@
 
 import sys
 import threading
+import time
 
 from bno055.connectors.i2c import I2C
 from bno055.connectors.uart import UART
@@ -54,10 +55,15 @@ class Bno055Node(Node):
     def __init__(self):
         # Initialize parent (ROS Node)
         super().__init__('bno055')
+        # declared once: re-declaring them makes a setup retry fail for the wrong reason
+        self.param = NodeParameters(self)
+        self.sensor = None
 
     def setup(self):
-        # Initialize ROS2 Node Parameters:
-        self.param = NodeParameters(self)
+        # built once, so a retry does not create a second set of publishers
+        if self.sensor is not None:
+            self.sensor.configure()
+            return
 
         # Get connector according to configured sensor connection type:
         if self.param.connection_type.value == UART.CONNECTIONTYPE_UART:
@@ -84,6 +90,7 @@ class Bno055Node(Node):
 
 
 def main(args=None):
+    node = None
     try:
         """Main entry method for this ROS2 node."""
         # Initialize ROS Client Libraries (RCL) for Python:
@@ -91,13 +98,29 @@ def main(args=None):
 
         # Create & initialize ROS2 node:
         node = Bno055Node()
-        node.setup()
+        setup_attempts = 6
+        for i in range(setup_attempts):
+            try:
+                node.setup()
+                break
+            except Exception as e:  # noqa: B902
+                node.get_logger().warn(
+                    'IMU setup attempt %d/%d failed: %s' % (i + 1, setup_attempts, e))
+                time.sleep(2.0)
+        else:
+            raise RuntimeError('BNO055 setup failed after %d attempts' % setup_attempts)
 
         # Create lock object to prevent overlapping data queries
         lock = threading.Lock()
 
+        # a sensor that has gone away fails every read: exit after about 3 s of them so
+        # the service can reset the port and start us again
+        max_failures = max(5, int(3 * node.param.data_query_frequency.value))
+        failures = 0
+
         def read_data():
             """Periodic data_query_timer executions to retrieve sensor IMU data."""
+            nonlocal failures
             if lock.locked():
                 # critical area still locked
                 # that means that the previous data query is still being processed
@@ -116,8 +139,19 @@ def main(args=None):
                 # division by zero in get_sensor_data, return
                 return
             except Exception as e:  # noqa: B902
-                node.get_logger().warn('Receiving sensor data failed with %s:"%s"'
-                                       % (type(e).__name__, e))
+                failures += 1
+                # a run of failures is one event, not hundreds: report its start, a
+                # heartbeat while it lasts, and the last read before giving up
+                if failures == 1 or failures % 50 == 0 or failures == max_failures:
+                    node.get_logger().warn('Receiving sensor data failed with %s:"%s" (%d/%d)'
+                                           % (type(e).__name__, e, failures, max_failures))
+                if failures >= max_failures:
+                    node.get_logger().error(
+                        'No sensor data for %d consecutive reads: exiting so the port can '
+                        'be reset and this node started again' % failures)
+                    raise SystemExit(1)
+            else:
+                failures = 0
             finally:
                 lock.release()
 
@@ -155,17 +189,22 @@ def main(args=None):
         rclpy.spin(node)
 
     except KeyboardInterrupt:
-        node.get_logger().info('Ctrl+C received - exiting...')
+        if node is not None:
+            node.get_logger().info('Ctrl+C received - exiting...')
         sys.exit(0)
     finally:
-        node.get_logger().info('ROS node shutdown')
+        if node is not None:
+            node.get_logger().info('ROS node shutdown')
+            try:
+                node.destroy_timer(data_query_timer)
+                node.destroy_timer(status_timer)
+            except UnboundLocalError:
+                node.get_logger().info('No timers to shutdown')
+            node.destroy_node()
         try:
-            node.destroy_timer(data_query_timer)
-            node.destroy_timer(status_timer)
-        except UnboundLocalError:
-            node.get_logger().info('No timers to shutdown')
-        node.destroy_node()
-        rclpy.shutdown()
+            rclpy.shutdown()
+        except Exception:  # noqa: B902
+            pass
 
 
 if __name__ == '__main__':

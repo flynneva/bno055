@@ -29,7 +29,8 @@
 
 # Connector for UART integration of the BNO-055
 # See also https://pyserial.readthedocs.io/en/latest/pyserial_api.html
-import sys
+import time
+
 import serial
 
 from rclpy.node import Node
@@ -68,12 +69,21 @@ class UART(Connector):
         """
         self.node.get_logger().info('Opening serial port: "%s"...' % self.port)
 
-        try:
-            self.serialConnection = serial.Serial(self.port, self.baudrate, timeout=self.timeout)
-        except serial.serialutil.SerialException:
-            self.node.get_logger().info('Unable to connect to IMU at port ' + self.port)
-            self.node.get_logger().info('Check to make sure your device is connected')
-            sys.exit(1)
+        # the port can be briefly absent after boot or a USB re-enumeration
+        attempts = 30
+        for i in range(attempts):
+            try:
+                self.serialConnection = serial.Serial(
+                    self.port, self.baudrate, timeout=self.timeout)
+                return
+            except serial.serialutil.SerialException:
+                if i == 0:
+                    self.node.get_logger().warn(
+                        'IMU port %s not ready, waiting for it...' % self.port)
+                time.sleep(1.0)
+        self.node.get_logger().error(
+            'Unable to connect to IMU at port %s after %d s' % (self.port, attempts))
+        raise ConnectionError('BNO055 serial port %s did not open' % self.port)
 
     def read(self, reg_addr, length):
         """Read data from sensor via UART.
